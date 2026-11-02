@@ -1,0 +1,1188 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<style>html{color-scheme:light}body{margin:0;font:14px system-ui,-apple-system,"Segoe UI",sans-serif}:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>DuffCast</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+/* Layout: a scoreboard-style masthead, a tab strip, then one working view at a time (standings, matchups, teams, model). */
+:root {
+  --paper: #f3f5f1;
+  --surface: #fcfcfb;
+  --ink: #111512;
+  --ink-2: #4b524c;
+  --muted: #7d847e;
+  --rule: #dde1da;
+  --rule-strong: #c4c9c1;
+  --line-quiet: #c9cdc6;
+  --accent: #1d5b47;
+  --accent-ink: #ffffff;
+  --team-a: #2a78d6;
+  --team-b: #eb6834;
+  --team-a-wash: rgba(42,120,214,.14);
+  --team-b-wash: rgba(235,104,52,.14);
+  --div-pos: #2a78d6;
+  --div-neg: #e34948;
+  --div-mid: #f0efec;
+  --good: #006300;
+  --bad: #b52f2f;
+  --t0: #2a78d6; --t1: #eb6834; --t2: #1baf7a; --t3: #eda100; --t4: #e87ba4; --t5: #008300; --t6: #6250d6; --t7: #e34948; --t8: #0e8a9c; --t9: #8b5a2b; --t10: #5c6b7d; --t11: #9a9a10;
+  --font-display: "Barlow Condensed", "Arial Narrow", system-ui, sans-serif;
+  --font-body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --paper: #0f1210; --surface: #171a18; --ink: #eef0ec; --ink-2: #c0c6bf; --muted: #8b918a;
+  --rule: #2a2f2b; --rule-strong: #3a403b; --line-quiet: #3d433e; --accent: #5fb391; --accent-ink: #0b1510;
+  --team-a: #3987e5; --team-b: #d95926; --team-a-wash: rgba(57,135,229,.2); --team-b-wash: rgba(217,89,38,.2);
+  --div-pos: #3987e5; --div-neg: #e66767; --div-mid: #383835; --good: #3dbb3d; --bad: #ef7d7d; --t0: #3987e5; --t1: #d95926; --t2: #199e70; --t3: #c98500; --t4: #d55181; --t5: #2f9e2f; --t6: #9085e9; --t7: #e66767; --t8: #2bb0c2; --t9: #b07a45; --t10: #8797aa; --t11: #b8b830;
+  color-scheme: dark } }
+:root[data-theme="dark"] {
+  --paper: #0f1210; --surface: #171a18; --ink: #eef0ec; --ink-2: #c0c6bf; --muted: #8b918a;
+  --rule: #2a2f2b; --rule-strong: #3a403b; --line-quiet: #3d433e; --accent: #5fb391; --accent-ink: #0b1510;
+  --team-a: #3987e5; --team-b: #d95926; --team-a-wash: rgba(57,135,229,.2); --team-b-wash: rgba(217,89,38,.2);
+  --div-pos: #3987e5; --div-neg: #e66767; --div-mid: #383835; --good: #3dbb3d; --bad: #ef7d7d; --t0: #3987e5; --t1: #d95926; --t2: #199e70; --t3: #c98500; --t4: #d55181; --t5: #2f9e2f; --t6: #9085e9; --t7: #e66767; --t8: #2bb0c2; --t9: #b07a45; --t10: #8797aa; --t11: #b8b830;
+  color-scheme: dark }
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body { background: var(--paper); color: var(--ink); font-family: var(--font-body); font-size: 15px; line-height: 1.5; }
+.wrap { max-width: 1080px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 28px 64px; }
+h1, h2, h3 { font-family: var(--font-display); font-weight: 700; letter-spacing: .01em; margin: 0; text-wrap: balance; line-height: 1.05; }
+h1 { font-size: clamp(2.4rem, 6vw, 3.6rem); text-transform: uppercase; letter-spacing: .02em; }
+h2 { font-size: 1.7rem; text-transform: uppercase; letter-spacing: .03em; }
+h3 { font-size: 1.25rem; }
+p { margin: 0; }
+.num { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+.eyebrow { font-family: var(--font-display); font-weight: 600; text-transform: uppercase; letter-spacing: .12em; font-size: .85rem; color: var(--muted); }
+.muted { color: var(--muted); }
+.ink2 { color: var(--ink-2); }
+
+/* masthead */
+.mast { display: grid; grid-template-columns: 1fr auto; gap: 12px 24px; align-items: end; border-bottom: 3px solid var(--ink); padding-bottom: 14px; }
+.mast-title { display: flex; align-items: end; gap: 14px; min-width: 0; }
+.mast nav.tabs.global { margin: 0; }
+.seasonbar { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 10px 20px; margin: 16px 0 26px; }
+.seasonbar nav.tabs { margin: 0; }
+.seasonbar .meta { grid-column: 1 / -1; }
+.meta { display: flex; flex-wrap: wrap; gap: 6px 18px; color: var(--ink-2); font-size: .9rem; }
+.meta b { font-weight: 600; color: var(--ink); }
+.seg { display: inline-flex; border: 1px solid var(--rule-strong); border-radius: 6px; overflow: hidden; background: var(--surface); }
+.seg button { font: 500 .85rem var(--font-body); padding: 6px 12px; border: 0; background: transparent; color: var(--ink-2); cursor: pointer; }
+.seg button + button { border-left: 1px solid var(--rule-strong); }
+.seg button[aria-pressed="true"] { background: var(--ink); color: var(--paper); }
+button:focus-visible, select:focus-visible, a:focus-visible, tr:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+nav.tabs { display: flex; gap: 4px; margin: 18px 0 26px; overflow-x: auto; scrollbar-width: none; }
+nav.tabs a { font-family: var(--font-display); font-weight: 600; font-size: 1.15rem; text-transform: uppercase; letter-spacing: .06em; padding: 6px 14px 4px; color: var(--ink-2); text-decoration: none; border-radius: 4px; white-space: nowrap; }
+nav.tabs a:hover { background: var(--rule); color: var(--ink); }
+nav.tabs a[aria-current="page"] { background: var(--accent); color: var(--accent-ink); }
+
+.section { display: grid; gap: 18px; }
+.section + .section { margin-top: 40px; }
+.sec-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: end; gap: 10px 20px; }
+.sec-head p { color: var(--ink-2); max-width: 62ch; }
+.panel { background: var(--surface); border: 1px solid var(--rule); border-radius: 8px; }
+
+/* standings table */
+.tbl-wrap { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; }
+.standings th { font-family: var(--font-display); font-weight: 600; text-transform: uppercase; letter-spacing: .08em; font-size: .82rem; color: var(--muted); text-align: left; padding: 10px 10px 8px; border-bottom: 1px solid var(--rule-strong); white-space: nowrap; }
+.standings td { padding: 9px 10px; border-bottom: 1px solid var(--rule); vertical-align: middle; white-space: nowrap; }
+.standings tr.row { cursor: pointer; }
+.standings tr.row:hover td { background: color-mix(in srgb, var(--rule) 45%, transparent); }
+.standings .r { text-align: right; }
+.standings .rank { font-family: var(--font-display); font-weight: 700; font-size: 1.2rem; color: var(--muted); width: 1.6em; padding-right: 2px; }
+.standings .mv { width: 2.6em; padding-left: 0; }
+.standings th.wrap { white-space: normal; line-height: 1.2; max-width: 6.5em; }
+.standings td, .standings th { padding-left: 8px; padding-right: 8px; }
+.standings .team { font-weight: 600; white-space: normal; min-width: 150px; }
+.standings tr.cut td { border-bottom: 2px dashed var(--rule-strong); }
+.dot { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 8px; vertical-align: 1px; }
+.dot.a { background: var(--team-a); } .dot.b { background: var(--team-b); }
+.delta { font-family: var(--font-mono); font-size: .82rem; }
+.delta.up { color: var(--good); } .delta.down { color: var(--bad); } .delta.flat { color: var(--muted); }
+.pbar { display: grid; grid-template-columns: 3.2em 56px; align-items: center; gap: 8px; justify-content: end; }
+.pbar .track { height: 6px; background: var(--rule); border-radius: 3px; overflow: hidden; }
+.pbar .fill { height: 100%; background: var(--ink-2); border-radius: 3px; }
+.pbar.title .fill { background: var(--accent); }
+.pbar span { text-align: right; }
+
+/* charts */
+.chart { position: relative; }
+.chart svg { display: block; width: 100%; height: auto; overflow: visible; }
+.axis text, .chart text { fill: var(--muted); font-family: var(--font-mono); font-size: 11px; }
+.grid line { stroke: var(--rule); stroke-width: 1; }
+.tip { position: absolute; pointer-events: none; background: var(--surface); border: 1px solid var(--rule-strong); border-radius: 6px; padding: 8px 10px; font-size: .8rem; box-shadow: 0 6px 18px rgba(0,0,0,.12); min-width: 180px; z-index: 5; }
+.tip .t { font-family: var(--font-display); font-weight: 600; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 4px; }
+.tip .rowt { display: flex; justify-content: space-between; gap: 14px; }
+.tip .rowt.hl { font-weight: 600; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: .85rem; color: var(--ink-2); }
+.legend .sw { display: inline-block; width: 18px; height: 3px; border-radius: 2px; vertical-align: middle; margin-right: 6px; }
+.chart-panel { padding: 16px 16px 10px; display: grid; gap: 10px; }
+
+/* matchups */
+.weekbar { display: flex; gap: 4px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: thin; }
+.weekbar button { flex: 0 0 auto; min-width: 40px; font: 500 .85rem var(--font-mono); padding: 6px 8px; border-radius: 4px; border: 1px solid var(--rule-strong); background: var(--surface); color: var(--ink-2); cursor: pointer; }
+.weekbar button.done { color: var(--ink); }
+.weekbar button.live { border-color: var(--accent); }
+.weekbar button[aria-pressed="true"] { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+.cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 330px), 1fr)); gap: 14px; }
+.card { padding: 14px 16px 12px; display: grid; gap: 10px; min-width: 0; }
+.card .vs { display: grid; grid-template-columns: 1fr auto 1fr; gap: 8px; align-items: start; }
+.card .vs .nm { font-weight: 600; line-height: 1.25; overflow-wrap: anywhere; }
+.card .vs .nm.b { text-align: right; }
+.card .vs .pct { font-family: var(--font-display); font-weight: 700; font-size: 1.6rem; line-height: 1; }
+.card .vs .pa { color: var(--team-a); } .card .vs .pb { color: var(--team-b); text-align: right; }
+.splitbar { display: flex; height: 8px; border-radius: 4px; overflow: hidden; gap: 2px; }
+.splitbar i { display: block; height: 100%; }
+.splitbar .t { background: var(--line-quiet); }
+.splitbar .a { background: var(--team-a); border-radius: 4px 0 0 4px; } .splitbar .b { background: var(--team-b); border-radius: 0 4px 4px 0; }
+.chip { display: inline-block; font-family: var(--font-display); font-weight: 600; text-transform: uppercase; letter-spacing: .08em; font-size: .75rem; padding: 2px 8px; border-radius: 999px; border: 1px solid var(--rule-strong); color: var(--ink-2); }
+.chip.live { border-color: var(--accent); color: var(--accent); }
+.chip.hit { border-color: var(--good); color: var(--good); }
+.chip.miss { border-color: var(--bad); color: var(--bad); }
+.cardmeta { display: flex; justify-content: space-between; align-items: center; gap: 8px; font-size: .82rem; color: var(--ink-2); flex-wrap: wrap; }
+.cats { display: grid; grid-template-columns: 4.6em 1fr 4.2em 4.6em; gap: 3px 8px; align-items: center; font-size: .82rem; }
+.cats .c { font-family: var(--font-display); font-weight: 600; letter-spacing: .06em; color: var(--muted); text-align: center; }
+.cats .va { text-align: left; } .cats .vb { text-align: right; }
+.cats .win { color: var(--ink); font-weight: 600; } .cats .lose { color: var(--muted); }
+.cats .mini { height: 5px; background: var(--team-b); border-radius: 3px; overflow: hidden; }
+.cats .mini i { display: block; height: 100%; background: var(--team-a); border-right: 2px solid var(--surface); }
+.cats .pp { text-align: right; color: var(--muted); }
+.cats-head { font-size: .72rem; color: var(--muted); }
+
+/* teams */
+.teamgrid { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 18px; align-items: start; }
+@media (max-width: 760px) { .teamgrid { grid-template-columns: 1fr; } }
+.pickers { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.pickers label { display: flex; align-items: center; gap: 8px; font-size: .85rem; color: var(--ink-2); }
+select { font: 500 .9rem var(--font-body); padding: 6px 8px; border-radius: 6px; border: 1px solid var(--rule-strong); background: var(--surface); color: var(--ink); max-width: 100%; }
+.cmp th, .cmp td { padding: 7px 8px; border-bottom: 1px solid var(--rule); font-size: .85rem; white-space: nowrap; }
+.cmp th { font-family: var(--font-display); font-weight: 600; text-transform: uppercase; letter-spacing: .08em; font-size: .78rem; color: var(--muted); text-align: right; }
+.cmp th:first-child, .cmp td:first-child { text-align: left; }
+.cmp td { text-align: right; }
+.cmp .ca { color: var(--team-a); } .cmp .cb { color: var(--team-b); }
+.heat th { font-family: var(--font-display); font-weight: 600; letter-spacing: .06em; font-size: .8rem; color: var(--muted); padding: 8px 4px; text-align: center; white-space: nowrap; }
+.heat th:first-child { text-align: left; }
+.heat td { padding: 2px; }
+.heat td.nm { padding: 4px 10px 4px 0; font-weight: 500; font-size: .85rem; white-space: nowrap; cursor: pointer; }
+.heat td.nm:hover { text-decoration: underline; }
+.heat .cell { border-radius: 3px; text-align: center; font-family: var(--font-mono); font-size: .78rem; padding: 6px 0; min-width: 40px; }
+
+/* model */
+.prose { display: grid; gap: 12px; max-width: 68ch; color: var(--ink-2); }
+.prose h3 { color: var(--ink); margin-top: 10px; }
+.prose b { color: var(--ink); font-weight: 600; }
+.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr)); gap: 14px; }
+.stat { padding: 14px 16px; display: grid; gap: 2px; }
+.stat .big { font-family: var(--font-display); font-weight: 700; font-size: 2.2rem; line-height: 1; }
+.loading { color: var(--muted); font-size: .9rem; padding: 20px 0; }
+.note { font-size: .82rem; color: var(--muted); }
+@media (max-width: 560px) {
+  .mast { grid-template-columns: 1fr; }
+  .seasonbar { grid-template-columns: 1fr; }
+  .hide-sm { display: none; }
+}
+.tl g.team { transition: opacity .15s; }
+.tl.has-hl g.team { opacity: .16; }
+.tl.has-hl g.team.on { opacity: 1; }
+.tl g.team.on .ln { stroke-width: 3.5; }
+.tl .lb { fill: var(--ink-2); font-family: var(--font-body); font-size: 11.5px; }
+.tl .lb .v { fill: var(--muted); font-family: var(--font-mono); font-size: 11px; }
+.tl g.team.on .lb { fill: var(--ink); font-weight: 600; }
+.tl .hitln, .tl .hitlb { cursor: pointer; pointer-events: all; }
+.standings tr.sel td { background: color-mix(in srgb, var(--accent) 12%, transparent); }
+.legend .sw.dash { background: none; border-top: 2px dashed var(--muted); height: 0; }
+.cmp .rk { color: var(--muted); font-size: .78rem; text-align: left; padding-left: 2px; }
+.heat .cell.avg { background: transparent; color: var(--ink-2); }
+.tip .dot { width: 8px; height: 8px; margin-right: 6px; }
+.standings .caret { color: var(--muted); margin-left: 8px; font-size: .8rem; }
+.standings tr.detail td { background: var(--paper); padding: 16px 16px 12px; white-space: normal; cursor: default; }
+.dist { display: grid; gap: 10px; }
+.dist-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: end; gap: 8px 20px; }
+.dist-head p { max-width: 60ch; margin-top: 4px; }
+.dist-head b { color: var(--ink); font-weight: 600; }
+.legend .sw.blk { width: 12px; height: 12px; border-radius: 2px; }
+.hitbar { cursor: default; }
+/* mascot: an original DuffCast player dribbling, in the site's team colors */
+.mascot { display: inline-block; flex: none; }
+.with-mascot { display: flex; align-items: end; gap: 14px; }
+.mascot { width: 80px; }
+.mascot svg { display: block; width: 100%; height: auto; overflow: visible; }
+.mascot .ball { transform-box: fill-box; transform-origin: 50% 100%; animation: bounce .62s infinite; }
+.mascot .shadow { transform-box: fill-box; transform-origin: 50% 50%; animation: shade .62s infinite; }
+.mascot .arm { transform-box: view-box; transform-origin: 72px 64px; animation: flap .62s infinite; }
+.mascot .pony { transform-box: view-box; transform-origin: 46px 24px; animation: swing .62s infinite; }
+.mascot .bob { animation: bob .62s infinite; }
+.mascot.run .runner { animation: run 7s linear infinite; }
+@keyframes bounce { 0%,100% { transform: translateY(-50px); animation-timing-function: ease-in; } 46% { transform: translateY(0) scale(1.08, .86); animation-timing-function: ease-out; } 54% { transform: translateY(0) scale(1, 1); } }
+@keyframes shade { 0%,100% { transform: scale(.55); opacity: .25; } 50% { transform: scale(1); opacity: .45; } }
+@keyframes flap { 0%,100% { transform: rotate(-22deg); } 46% { transform: rotate(6deg); } }
+@keyframes swing { 0%,100% { transform: rotate(-6deg); } 50% { transform: rotate(5deg); } }
+@keyframes bob { 0%,100% { transform: translateY(0); } 50% { transform: translateY(2px); } }
+@keyframes run { 0% { left: 0; transform: scaleX(1); } 49% { left: calc(100% - 90px); transform: scaleX(1); } 50% { left: calc(100% - 90px); transform: scaleX(-1); } 99% { left: 0; transform: scaleX(-1); } 100% { left: 0; transform: scaleX(1); } }
+.mascot.run { display: block; position: relative; width: 100%; height: 104px; overflow: hidden; }
+.mascot.run .runner { position: absolute; bottom: 0; left: 0; width: 90px; }
+@media (prefers-reduced-motion: reduce) { .mascot .ball, .mascot .shadow, .mascot .arm, .mascot .pony, .mascot .bob, .mascot.run .runner { animation: none; } }
+.score th { font-family: var(--font-display); font-weight: 600; text-transform: uppercase; letter-spacing: .08em; font-size: .85rem; color: var(--muted); text-align: right; padding: 12px 14px 8px; border-bottom: 1px solid var(--rule-strong); }
+.score th:first-child, .score td:first-child { text-align: left; }
+.score td { padding: 10px 14px; border-bottom: 1px solid var(--rule); text-align: right; vertical-align: top; }
+.score td:first-child { font-weight: 600; min-width: 200px; }
+.score .sub { display: block; font-weight: 400; font-size: .8rem; color: var(--muted); }
+.score tr.key td { font-size: 1.15rem; }
+.score tr.key td:first-child { font-size: 1rem; }
+.score .good { color: var(--good); font-weight: 600; } .score .bad { color: var(--bad); font-weight: 600; }
+.teapicks { display: flex; flex-wrap: wrap; gap: 6px; }
+.teapicks button { font: 500 .85rem var(--font-body); padding: 6px 10px; border-radius: 999px; border: 1px solid var(--rule-strong); background: var(--surface); color: var(--ink-2); cursor: pointer; display: inline-flex; align-items: center; }
+.teapicks button .dot { margin-right: 6px; }
+.teapicks button[aria-pressed="true"] { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+.teacard { padding: 20px 22px; display: grid; gap: 18px; }
+.tea-head { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px 24px; align-items: start; border-bottom: 1px solid var(--rule); padding-bottom: 16px; }
+.tea-head h3 { font-size: 2rem; text-transform: uppercase; letter-spacing: .02em; margin-top: 4px; display: flex; align-items: center; }
+.tea-head h3 .dot { width: 12px; height: 12px; margin-right: 10px; }
+.tea-line { margin-top: 6px; font-size: 1.05rem; color: var(--ink-2); max-width: 52ch; }
+.tea-stats { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; color: var(--ink-2); font-size: .9rem; }
+.tea-stats b { color: var(--ink); font-size: 1.1rem; }
+.chip.tier-contender { border-color: var(--good); color: var(--good); }
+.chip.tier-mix { border-color: var(--accent); color: var(--accent); }
+.chip.tier-longshot { border-color: var(--bad); color: var(--bad); }
+.tea-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px 28px; }
+@media (max-width: 680px) { .tea-grid { grid-template-columns: 1fr; } }
+.tea-grid h4 { font-family: var(--font-display); font-weight: 600; text-transform: uppercase; letter-spacing: .1em; font-size: .9rem; color: var(--muted); margin: 0 0 8px; }
+.tea-grid ul { margin: 0; padding-left: 18px; display: grid; gap: 8px; color: var(--ink-2); }
+.tea-grid li b { color: var(--ink); font-weight: 600; }
+.tea-trade { border-top: 1px solid var(--rule); padding-top: 16px; display: grid; gap: 6px; color: var(--ink-2); max-width: 75ch; }
+.tea-trade h4 { font-family: var(--font-display); font-weight: 600; text-transform: uppercase; letter-spacing: .1em; font-size: .9rem; color: var(--accent); margin: 0 0 4px; }
+.tea-trade b { color: var(--ink); font-weight: 600; }
+@media (prefers-reduced-motion: no-preference) { .fade { animation: fade .25s ease-out both; } @keyframes fade { from { opacity: .4 } to { opacity: 1 } } }
+</style>
+
+</head>
+<body>
+<div class="wrap">
+  <header class="mast">
+    <div class="mast-title">
+      <div>
+        <h1>DuffCast</h1>
+      </div>
+    </div>
+    <nav class="tabs global" aria-label="About">
+      <a href="#model" data-view="model">How it works</a>
+    </nav>
+  </header>
+  <div class="seasonbar" id="seasonBar">
+    <nav class="tabs" aria-label="Views">
+      <a href="#standings" data-view="standings">Standings</a>
+      <a href="#matchups" data-view="matchups">Matchups</a>
+      <a href="#teams" data-view="teams">Category strength</a>
+      <a href="#tea" data-view="tea">DuffTea</a>
+    </nav>
+    <div class="season-pick">
+      <div class="seg" role="group" aria-label="Season" id="seasonSeg"></div>
+    </div>
+    <div class="meta" id="meta"></div>
+  </div>
+  <main id="view"></main>
+</div>
+
+<script type="application/json" id="data">{"updated":"2026-11-02","seasons":[{"id":"2027","label":"2026–27","teams":["Sherwood Frogs","TrustTheProcess","Load Management","Bald Baddies","No Plan, All Vibes","Buckman Grizzly Beers","Aspiration-al Values","Wembanyamacare for All","Oscar's Ball Club","I'm Crying, Bennifer","Hector Banana Bread","HeyNowThisIsWhat3sAreMadeOf"],"regWeeks":19,"playoffTeams":4,"playoffWeekLen":2,"matchups":[{"week":1,"a":2,"b":7,"sa":{"FGM":217,"FGA":478,"FTM":135,"FTA":186,"3PM":37,"REB":224,"AST":121,"STL":37,"BLK":20,"TO":86,"PTS":606},"sb":{"FGM":208,"FGA":467,"FTM":81,"FTA":109,"3PM":53,"REB":225,"AST":160,"STL":39,"BLK":29,"TO":78,"PTS":550},"final":true},{"week":1,"a":9,"b":3,"sa":{"FGM":188,"FGA":378,"FTM":105,"FTA":131,"3PM":43,"REB":180,"AST":85,"STL":34,"BLK":23,"TO":51,"PTS":524},"sb":{"FGM":200,"FGA":438,"FTM":124,"FTA":139,"3PM":44,"REB":180,"AST":89,"STL":42,"BLK":30,"TO":66,"PTS":568},"final":true},{"week":1,"a":11,"b":0,"sa":{"FGM":204,"FGA":447,"FTM":129,"FTA":169,"3PM":51,"REB":230,"AST":137,"STL":35,"BLK":22,"TO":80,"PTS":588},"sb":{"FGM":201,"FGA":422,"FTM":80,"FTA":101,"3PM":67,"REB":159,"AST":131,"STL":46,"BLK":16,"TO":63,"PTS":549},"final":true},{"week":1,"a":10,"b":1,"sa":{"FGM":144,"FGA":339,"FTM":82,"FTA":96,"3PM":45,"REB":157,"AST":112,"STL":32,"BLK":16,"TO":71,"PTS":415},"sb":{"FGM":171,"FGA":380,"FTM":87,"FTA":113,"3PM":44,"REB":165,"AST":103,"STL":45,"BLK":12,"TO":77,"PTS":473},"final":true},{"week":1,"a":8,"b":5,"sa":{"FGM":192,"FGA":416,"FTM":124,"FTA":161,"3PM":60,"REB":190,"AST":162,"STL":38,"BLK":18,"TO":90,"PTS":568},"sb":{"FGM":186,"FGA":435,"FTM":98,"FTA":135,"3PM":68,"REB":189,"AST":104,"STL":31,"BLK":42,"TO":69,"PTS":538},"final":true},{"week":1,"a":6,"b":4,"sa":{"FGM":184,"FGA":389,"FTM":118,"FTA":148,"3PM":50,"REB":209,"AST":131,"STL":42,"BLK":24,"TO":83,"PTS":536},"sb":{"FGM":194,"FGA":396,"FTM":105,"FTA":126,"3PM":81,"REB":139,"AST":98,"STL":30,"BLK":18,"TO":67,"PTS":574},"final":true},{"week":2,"a":7,"b":3,"sa":{"FGM":196,"FGA":446,"FTM":82,"FTA":109,"3PM":67,"REB":199,"AST":181,"STL":30,"BLK":22,"TO":76,"PTS":541},"sb":{"FGM":203,"FGA":432,"FTM":92,"FTA":110,"3PM":75,"REB":174,"AST":93,"STL":36,"BLK":20,"TO":64,"PTS":573},"final":true},{"week":2,"a":0,"b":2,"sa":{"FGM":205,"FGA":457,"FTM":109,"FTA":131,"3PM":65,"REB":198,"AST":143,"STL":45,"BLK":19,"TO":87,"PTS":584},"sb":{"FGM":270,"FGA":557,"FTM":103,"FTA":141,"3PM":73,"REB":274,"AST":162,"STL":43,"BLK":21,"TO":70,"PTS":716},"final":true},{"week":2,"a":1,"b":9,"sa":{"FGM":249,"FGA":534,"FTM":112,"FTA":147,"3PM":50,"REB":245,"AST":153,"STL":52,"BLK":31,"TO":85,"PTS":660},"sb":{"FGM":263,"FGA":543,"FTM":139,"FTA":177,"3PM":83,"REB":268,"AST":171,"STL":46,"BLK":25,"TO":88,"PTS":748},"final":true},{"week":2,"a":5,"b":11,"sa":{"FGM":240,"FGA":521,"FTM":117,"FTA":144,"3PM":89,"REB":187,"AST":152,"STL":40,"BLK":35,"TO":67,"PTS":686},"sb":{"FGM":137,"FGA":325,"FTM":86,"FTA":111,"3PM":34,"REB":189,"AST":82,"STL":30,"BLK":9,"TO":64,"PTS":394},"final":true},{"week":2,"a":4,"b":10,"sa":{"FGM":147,"FGA":362,"FTM":61,"FTA":73,"3PM":56,"REB":132,"AST":78,"STL":32,"BLK":16,"TO":65,"PTS":411},"sb":{"FGM":162,"FGA":355,"FTM":120,"FTA":153,"3PM":51,"REB":179,"AST":129,"STL":34,"BLK":21,"TO":76,"PTS":495},"final":true},{"week":2,"a":6,"b":8,"sa":{"FGM":195,"FGA":425,"FTM":91,"FTA":109,"3PM":41,"REB":226,"AST":127,"STL":22,"BLK":36,"TO":86,"PTS":522},"sb":{"FGM":255,"FGA":527,"FTM":144,"FTA":168,"3PM":73,"REB":249,"AST":196,"STL":42,"BLK":18,"TO":117,"PTS":727},"final":true},{"week":3,"a":0,"b":7},{"week":3,"a":3,"b":1},{"week":3,"a":2,"b":5},{"week":3,"a":9,"b":4},{"week":3,"a":11,"b":6},{"week":3,"a":10,"b":8},{"week":4,"a":7,"b":1},{"week":4,"a":5,"b":0},{"week":4,"a":4,"b":3},{"week":4,"a":6,"b":2},{"week":4,"a":8,"b":9},{"week":4,"a":10,"b":11},{"week":5,"a":5,"b":7},{"week":5,"a":1,"b":4},{"week":5,"a":0,"b":6},{"week":5,"a":3,"b":8},{"week":5,"a":2,"b":10},{"week":5,"a":9,"b":11},{"week":6,"a":7,"b":4},{"week":6,"a":6,"b":5},{"week":6,"a":8,"b":1},{"week":6,"a":10,"b":0},{"week":6,"a":11,"b":3},{"week":6,"a":9,"b":2},{"week":7,"a":6,"b":7},{"week":7,"a":4,"b":8},{"week":7,"a":5,"b":10},{"week":7,"a":1,"b":11},{"week":7,"a":0,"b":9},{"week":7,"a":3,"b":2},{"week":8,"a":7,"b":8},{"week":8,"a":10,"b":6},{"week":8,"a":11,"b":4},{"week":8,"a":9,"b":5},{"week":8,"a":2,"b":1},{"week":8,"a":3,"b":0},{"week":9,"a":10,"b":7},{"week":9,"a":8,"b":11},{"week":9,"a":6,"b":9},{"week":9,"a":4,"b":2},{"week":9,"a":5,"b":3},{"week":9,"a":1,"b":0},{"week":10,"a":7,"b":11},{"week":10,"a":9,"b":10},{"week":10,"a":2,"b":8},{"week":10,"a":3,"b":6},{"week":10,"a":0,"b":4},{"week":10,"a":1,"b":5},{"week":11,"a":9,"b":7},{"week":11,"a":11,"b":2},{"week":11,"a":10,"b":3},{"week":11,"a":8,"b":0},{"week":11,"a":6,"b":1},{"week":11,"a":4,"b":5},{"week":12,"a":7,"b":2},{"week":12,"a":3,"b":9},{"week":12,"a":0,"b":11},{"week":12,"a":1,"b":10},{"week":12,"a":5,"b":8},{"week":12,"a":4,"b":6},{"week":13,"a":3,"b":7},{"week":13,"a":2,"b":0},{"week":13,"a":9,"b":1},{"week":13,"a":11,"b":5},{"week":13,"a":10,"b":4},{"week":13,"a":8,"b":6},{"week":14,"a":7,"b":0},{"week":14,"a":1,"b":3},{"week":14,"a":5,"b":2},{"week":14,"a":4,"b":9},{"week":14,"a":6,"b":11},{"week":14,"a":8,"b":10},{"week":15,"a":1,"b":7},{"week":15,"a":0,"b":5},{"week":15,"a":3,"b":4},{"week":15,"a":2,"b":6},{"week":15,"a":9,"b":8},{"week":15,"a":11,"b":10},{"week":16,"a":7,"b":5},{"week":16,"a":4,"b":1},{"week":16,"a":6,"b":0},{"week":16,"a":8,"b":3},{"week":16,"a":10,"b":2},{"week":16,"a":11,"b":9},{"week":17,"a":4,"b":7},{"week":17,"a":5,"b":6},{"week":17,"a":1,"b":8},{"week":17,"a":0,"b":10},{"week":17,"a":3,"b":11},{"week":17,"a":2,"b":9},{"week":18,"a":7,"b":6},{"week":18,"a":8,"b":4},{"week":18,"a":10,"b":5},{"week":18,"a":11,"b":1},{"week":18,"a":9,"b":0},{"week":18,"a":2,"b":3},{"week":19,"a":8,"b":7},{"week":19,"a":6,"b":10},{"week":19,"a":4,"b":11},{"week":19,"a":5,"b":9},{"week":19,"a":1,"b":2},{"week":19,"a":0,"b":3}],"games":[[32,37,40,46,43,37,26,13,46,40,44,46,44,44,46,47,49,55,42],[32,40,42,43,37,38,26,10,50,42,47,46,42,43,47,46,46,57,42],[38,40,42,46,43,43,26,13,42,41,45,47,46,42,46,46,44,51,43],[35,32,39,45,43,41,24,13,44,42,42,45,46,43,48,46,44,52,42],[32,32,41,45,45,42,26,11,45,43,41,47,45,47,45,45,49,54,43],[35,38,43,43,47,41,23,12,46,46,45,45,45,44,46,47,44,52,40],[33,36,40,43,39,37,26,12,46,40,45,47,45,45,47,48,43,55,43],[38,36,40,43,43,38,25,12,48,42,44,49,43,43,47,48,45,55,40],[33,42,42,39,41,41,25,12,46,42,45,43,51,44,47,45,49,45,44],[32,43,42,45,43,40,25,11,48,40,46,44,45,46,47,46,48,55,41],[32,35,42,41,48,43,25,13,46,42,41,46,45,42,43,44,48,53,45],[37,32,37.3,40.6,44.9,45,25,13,42,43,41,47,45,46,47,45,46,54,44]],"injuries":[{"team":0,"name":"Tobias Harris","back":"2026-11-06"},{"team":1,"name":"Nic Claxton","back":"2026-11-02"},{"team":3,"name":"Jalen Duren","back":"2026-11-09"},{"team":3,"name":"Chet Holmgren","back":"2027-01-02"},{"team":4,"name":"Anthony Edwards","back":"2026-12-21"},{"team":5,"name":"Jaren Jackson Jr.","back":"2026-12-14"},{"team":6,"name":"Kawhi Leonard","back":"2026-11-23"},{"team":6,"name":"Kon Knueppel","back":"2026-11-09"},{"team":6,"name":"Ja Morant","back":"2026-12-01"},{"team":7,"name":"Ivica Zubac","back":"2026-11-02"},{"team":7,"name":"Jalen Suggs","back":"2026-11-10"},{"team":7,"name":"Anthony Black","back":"2026-11-05"},{"team":8,"name":"Brandon Ingram","back":"2026-11-08"},{"team":10,"name":"Keegan Murray","back":"2026-11-10"},{"team":10,"name":"Egor Demin","back":"2026-11-07"},{"team":11,"name":"Tyrese Haliburton","back":"2026-11-13"},{"team":11,"name":"Paolo Banchero","back":"2026-11-22"}],"gamesPlanned":[[35,44,40,46,43,37,26,13,46,40,44,46,44,44,46,47,49,55,42],[35,44,42,43,37,38,26,10,50,42,47,46,42,43,47,46,46,57,42],[38,40,42,46,43,43,26,13,42,41,45,47,46,42,46,46,44,51,43],[38,43,39,45,43,41,24,13,44,42,42,45,46,43,48,46,44,52,42],[30,35,41,45,45,42,26,11,45,43,41,47,45,47,45,45,49,54,43],[36,39,43,43,47,41,23,12,46,46,45,45,45,44,46,47,44,52,40],[36,41,40,43,39,37,26,12,46,40,45,47,45,45,47,48,43,55,43],[35,40,40,43,43,38,25,12,48,42,44,49,43,43,47,48,45,55,40],[36,40,42,39,41,41,25,12,46,42,45,43,51,44,47,45,49,45,44],[34,44,42,45,43,40,25,11,48,40,46,44,45,46,47,46,48,55,41],[34,41,42,41,48,43,25,13,46,42,41,46,45,42,43,44,48,53,45],[39,42,37.3,40.6,44.9,45,25,13,42,43,41,47,45,46,47,45,46,54,44]],"snaps":[{"asOf":0,"model":"v5 · v4 plus week-to-week strength drift in season simulations","runs":10000,"ranOn":"2026-11-01","teams":[{"projW":9.0473,"projT":0.4807,"po":0.3064,"title":0.0846},{"projW":8.9532,"projT":0.4588,"po":0.297,"title":0.0795},{"projW":9.6438,"projT":0.4633,"po":0.3665,"title":0.0906},{"projW":9.7526,"projT":0.4859,"po":0.3825,"title":0.0895},{"projW":7.7423,"projT":0.4683,"po":0.1834,"title":0.0542},{"projW":9.7687,"projT":0.4831,"po":0.3934,"title":0.0905},{"projW":8.9202,"projT":0.4663,"po":0.2919,"title":0.0769},{"projW":8.5844,"projT":0.4745,"po":0.268,"title":0.0707},{"projW":9.4993,"projT":0.4764,"po":0.3583,"title":0.0921},{"projW":9.4123,"projT":0.4745,"po":0.349,"title":0.0874},{"projW":9.9895,"projT":0.4747,"po":0.4068,"title":0.0913},{"projW":9.8532,"projT":0.4599,"po":0.3968,"title":0.0927}]},{"asOf":1,"model":"v5 · v4 plus week-to-week strength drift in season simulations","runs":10000,"ranOn":"2026-11-01","teams":[{"projW":11.0404,"projT":0.4638,"po":0.5274,"title":0.1609},{"projW":6.1503,"projT":0.4131,"po":0.0694,"title":0.0182},{"projW":7.8974,"projT":0.4263,"po":0.1769,"title":0.0333},{"projW":9.2092,"projT":0.4742,"po":0.3069,"title":0.0712},{"projW":10.6517,"projT":0.4728,"po":0.4736,"title":0.1116},{"projW":10.0622,"projT":0.4535,"po":0.4147,"title":0.1039},{"projW":8.4901,"projT":0.4858,"po":0.2425,"title":0.0837},{"projW":11.1298,"projT":0.4538,"po":0.5443,"title":0.112},{"projW":10.5817,"projT":0.4723,"po":0.4795,"title":0.1298},{"projW":8.8723,"projT":0.4775,"po":0.2765,"title":0.0726},{"projW":8.1919,"projT":0.4749,"po":0.2004,"title":0.0342},{"projW":8.95,"projT":0.478,"po":0.2879,"title":0.0686}]},{"asOf":2,"model":"v5 · v4 plus week-to-week strength drift in season simulations","runs":10000,"ranOn":"2026-11-02","teams":[{"projW":8.9369,"projT":0.4525,"po":0.2392,"title":0.0809},{"projW":7.2126,"projT":0.3758,"po":0.0808,"title":0.0249},{"projW":11.2105,"projT":0.3757,"po":0.5405,"title":0.1125},{"projW":9.2469,"projT":0.4478,"po":0.264,"title":0.0784},{"projW":8.9821,"projT":0.4408,"po":0.2497,"title":0.0407},{"projW":12.7588,"projT":0.3599,"po":0.7592,"title":0.2125},{"projW":6.903,"projT":0.4167,"po":0.0774,"title":0.0243},{"projW":9.7976,"projT":0.436,"po":0.3485,"title":0.0878},{"projW":12.6504,"projT":0.4043,"po":0.7455,"title":0.1639},{"projW":11.294,"projT":0.4199,"po":0.5535,"title":0.1485},{"projW":7.9546,"projT":0.4233,"po":0.1313,"title":0.0235},{"projW":4.5843,"projT":0.3839,"po":0.0104,"title":0.0021}]}],"dist":[[[0,0],[13,0],[55,0],[163,0],[339,0],[654,0],[894,0],[1072,0],[1276,0],[1365,10],[1183,107],[998,429],[829,692],[580,575],[320,320],[170,170],[71,71],[16,16],[2,2],[0,0]],[[9,0],[76,0],[191,0],[447,0],[760,0],[1153,0],[1380,0],[1504,0],[1367,0],[1196,7],[883,98],[519,228],[308,269],[134,133],[61,61],[10,10],[1,1],[1,1],[0,0],[0,0]],[[0,0],[0,0],[3,0],[12,0],[65,0],[127,0],[254,0],[493,0],[725,1],[1016,8],[1262,193],[1320,653],[1342,1181],[1228,1216],[974,974],[666,666],[342,342],[135,135],[36,36],[0,0]],[[0,0],[0,0],[25,0],[99,0],[261,0],[498,0],[796,0],[1083,0],[1295,3],[1320,10],[1358,146],[1159,512],[843,719],[600,587],[359,359],[186,186],[82,82],[31,31],[4,4],[1,1]],[[0,0],[8,0],[72,0],[161,0],[422,0],[555,0],[865,0],[1129,0],[1215,0],[1280,3],[1178,122],[1057,462],[820,682],[584,574],[379,379],[182,182],[69,69],[21,21],[3,3],[0,0]],[[0,0],[0,0],[1,0],[5,0],[23,0],[45,0],[88,0],[168,0],[338,0],[520,11],[764,126],[1060,601],[1339,1214],[1382,1373],[1531,1531],[1213,1213],[854,854],[503,503],[166,166],[0,0]],[[23,0],[122,0],[285,0],[619,0],[942,0],[1245,0],[1335,0],[1378,0],[1243,0],[1021,8],[795,82],[480,213],[289,249],[146,145],[54,54],[21,21],[2,2],[0,0],[0,0],[0,0]],[[0,0],[6,0],[26,0],[79,0],[190,0],[364,0],[637,0],[927,0],[1119,1],[1280,19],[1291,158],[1241,598],[979,854],[821,815],[525,525],[315,315],[148,148],[43,43],[9,9],[0,0]],[[0,0],[0,0],[0,0],[6,0],[12,0],[31,0],[81,0],[209,0],[315,1],[577,10],[814,129],[1124,645],[1406,1258],[1502,1489],[1409,1409],[1070,1070],[826,826],[433,433],[149,149],[36,36]],[[0,0],[0,0],[3,0],[23,0],[61,0],[150,0],[271,0],[453,0],[710,0],[952,15],[1147,150],[1329,663],[1336,1153],[1304,1293],[981,981],[679,679],[412,412],[160,160],[29,29],[0,0]],[[0,0],[0,0],[72,0],[265,0],[558,0],[968,0],[1334,0],[1420,0],[1392,1],[1250,9],[981,84],[738,287],[462,382],[275,265],[169,169],[77,77],[27,27],[11,11],[1,1],[0,0]],[[227,0],[647,0],[1180,0],[1546,0],[1599,0],[1467,0],[1199,0],[901,0],[635,0],[296,1],[178,18],[75,40],[38,33],[9,9],[1,1],[2,2],[0,0],[0,0],[0,0],[0,0]]]},{"id":"2026","label":"2025–26 (backtest)","teams":["South Waterfront Frogs","The Team of a Tiredgirl","Deep State Warriors","Field Organizers","Snack Mamba","Buckman Grizzly Beers","The Ethical Hoopers","Dept of Administrative Ballers","Oscar's Ball Club","I'm Crying, Bennifer","Hector Banana Bread","Hospital Boys"],"regWeeks":19,"playoffTeams":4,"playoffWeekLen":2,"matchups":[{"week":1,"a":2,"b":7,"sa":{"FGM":208,"FGA":430,"FTM":124,"FTA":164,"3PM":54,"REB":181,"AST":120,"STL":31,"BLK":15,"TO":78,"PTS":594},"sb":{"FGM":147,"FGA":324,"FTM":82,"FTA":108,"3PM":34,"REB":154,"AST":91,"STL":15,"BLK":7,"TO":46,"PTS":410},"final":true},{"week":1,"a":9,"b":3,"sa":{"FGM":165,"FGA":360,"FTM":82,"FTA":107,"3PM":50,"REB":199,"AST":121,"STL":38,"BLK":25,"TO":61,"PTS":462},"sb":{"FGM":223,"FGA":448,"FTM":126,"FTA":166,"3PM":60,"REB":208,"AST":123,"STL":32,"BLK":15,"TO":86,"PTS":632},"final":true},{"week":1,"a":11,"b":0,"sa":{"FGM":177,"FGA":354,"FTM":110,"FTA":135,"3PM":45,"REB":156,"AST":98,"STL":34,"BLK":13,"TO":54,"PTS":509},"sb":{"FGM":137,"FGA":279,"FTM":60,"FTA":85,"3PM":36,"REB":148,"AST":106,"STL":24,"BLK":18,"TO":68,"PTS":370},"final":true},{"week":1,"a":10,"b":1,"sa":{"FGM":189,"FGA":403,"FTM":88,"FTA":111,"3PM":59,"REB":171,"AST":126,"STL":32,"BLK":13,"TO":72,"PTS":525},"sb":{"FGM":210,"FGA":413,"FTM":123,"FTA":154,"3PM":57,"REB":156,"AST":98,"STL":31,"BLK":15,"TO":46,"PTS":600},"final":true},{"week":1,"a":8,"b":5,"sa":{"FGM":182,"FGA":387,"FTM":139,"FTA":161,"3PM":51,"REB":138,"AST":74,"STL":22,"BLK":15,"TO":47,"PTS":554},"sb":{"FGM":189,"FGA":428,"FTM":106,"FTA":130,"3PM":67,"REB":219,"AST":128,"STL":37,"BLK":18,"TO":68,"PTS":551},"final":true},{"week":1,"a":6,"b":4,"sa":{"FGM":183,"FGA":384,"FTM":103,"FTA":126,"3PM":53,"REB":172,"AST":88,"STL":35,"BLK":40,"TO":56,"PTS":522},"sb":{"FGM":165,"FGA":358,"FTM":132,"FTA":166,"3PM":36,"REB":206,"AST":126,"STL":39,"BLK":15,"TO":73,"PTS":498},"final":true},{"week":2,"a":7,"b":3,"sa":{"FGM":152,"FGA":317,"FTM":89,"FTA":108,"3PM":46,"REB":118,"AST":98,"STL":17,"BLK":8,"TO":41,"PTS":439},"sb":{"FGM":233,"FGA":472,"FTM":133,"FTA":170,"3PM":61,"REB":191,"AST":158,"STL":43,"BLK":17,"TO":75,"PTS":660},"final":true},{"week":2,"a":0,"b":2,"sa":{"FGM":201,"FGA":428,"FTM":111,"FTA":134,"3PM":62,"REB":239,"AST":185,"STL":40,"BLK":18,"TO":100,"PTS":575},"sb":{"FGM":277,"FGA":555,"FTM":159,"FTA":197,"3PM":76,"REB":226,"AST":192,"STL":36,"BLK":22,"TO":92,"PTS":789},"final":true},{"week":2,"a":1,"b":9,"sa":{"FGM":241,"FGA":488,"FTM":123,"FTA":158,"3PM":71,"REB":200,"AST":95,"STL":27,"BLK":30,"TO":53,"PTS":676},"sb":{"FGM":253,"FGA":526,"FTM":113,"FTA":135,"3PM":61,"REB":278,"AST":195,"STL":55,"BLK":22,"TO":87,"PTS":680},"final":true},{"week":2,"a":5,"b":11,"sa":{"FGM":232,"FGA":515,"FTM":119,"FTA":152,"3PM":72,"REB":226,"AST":184,"STL":34,"BLK":28,"TO":84,"PTS":655},"sb":{"FGM":226,"FGA":441,"FTM":111,"FTA":140,"3PM":68,"REB":186,"AST":142,"STL":34,"BLK":31,"TO":69,"PTS":631},"final":true},{"week":2,"a":4,"b":10,"sa":{"FGM":220,"FGA":426,"FTM":117,"FTA":151,"3PM":36,"REB":272,"AST":131,"STL":46,"BLK":23,"TO":75,"PTS":593},"sb":{"FGM":237,"FGA":490,"FTM":96,"FTA":116,"3PM":64,"REB":187,"AST":157,"STL":42,"BLK":28,"TO":70,"PTS":634},"final":true},{"week":2,"a":6,"b":8,"sa":{"FGM":161,"FGA":383,"FTM":81,"FTA":94,"3PM":61,"REB":199,"AST":119,"STL":35,"BLK":18,"TO":67,"PTS":464},"sb":{"FGM":199,"FGA":450,"FTM":107,"FTA":129,"3PM":76,"REB":141,"AST":87,"STL":23,"BLK":16,"TO":58,"PTS":581},"final":true},{"week":3,"a":0,"b":7,"sa":{"FGM":226,"FGA":452,"FTM":76,"FTA":99,"3PM":65,"REB":200,"AST":139,"STL":50,"BLK":22,"TO":75,"PTS":593},"sb":{"FGM":144,"FGA":317,"FTM":72,"FTA":95,"3PM":29,"REB":118,"AST":89,"STL":18,"BLK":8,"TO":42,"PTS":389},"final":true},{"week":3,"a":3,"b":1,"sa":{"FGM":238,"FGA":516,"FTM":150,"FTA":191,"3PM":46,"REB":263,"AST":205,"STL":51,"BLK":19,"TO":99,"PTS":672},"sb":{"FGM":274,"FGA":582,"FTM":152,"FTA":179,"3PM":79,"REB":235,"AST":125,"STL":46,"BLK":21,"TO":86,"PTS":779},"final":true},{"week":3,"a":2,"b":5,"sa":{"FGM":341,"FGA":673,"FTM":153,"FTA":186,"3PM":86,"REB":221,"AST":213,"STL":54,"BLK":21,"TO":116,"PTS":921},"sb":{"FGM":222,"FGA":456,"FTM":123,"FTA":147,"3PM":58,"REB":221,"AST":118,"STL":40,"BLK":38,"TO":63,"PTS":625},"final":true},{"week":3,"a":9,"b":4,"sa":{"FGM":212,"FGA":442,"FTM":96,"FTA":124,"3PM":63,"REB":278,"AST":160,"STL":45,"BLK":30,"TO":85,"PTS":583},"sb":{"FGM":187,"FGA":372,"FTM":103,"FTA":126,"3PM":35,"REB":207,"AST":118,"STL":37,"BLK":13,"TO":65,"PTS":512},"final":true},{"week":3,"a":11,"b":6,"sa":{"FGM":188,"FGA":363,"FTM":99,"FTA":122,"3PM":35,"REB":195,"AST":107,"STL":34,"BLK":32,"TO":56,"PTS":510},"sb":{"FGM":173,"FGA":394,"FTM":82,"FTA":103,"3PM":58,"REB":176,"AST":113,"STL":42,"BLK":31,"TO":63,"PTS":486},"final":true},{"week":3,"a":10,"b":8,"sa":{"FGM":196,"FGA":428,"FTM":75,"FTA":90,"3PM":74,"REB":212,"AST":138,"STL":38,"BLK":23,"TO":75,"PTS":541},"sb":{"FGM":203,"FGA":461,"FTM":117,"FTA":133,"3PM":66,"REB":143,"AST":129,"STL":38,"BLK":20,"TO":83,"PTS":589},"final":true},{"week":4,"a":7,"b":1,"sa":{"FGM":105,"FGA":217,"FTM":50,"FTA":66,"3PM":34,"REB":66,"AST":73,"STL":14,"BLK":11,"TO":35,"PTS":294},"sb":{"FGM":294,"FGA":569,"FTM":168,"FTA":200,"3PM":92,"REB":254,"AST":121,"STL":45,"BLK":34,"TO":81,"PTS":848},"final":true},{"week":4,"a":5,"b":0,"sa":{"FGM":231,"FGA":492,"FTM":104,"FTA":123,"3PM":60,"REB":213,"AST":132,"STL":30,"BLK":26,"TO":88,"PTS":626},"sb":{"FGM":202,"FGA":468,"FTM":105,"FTA":125,"3PM":55,"REB":188,"AST":163,"STL":34,"BLK":19,"TO":77,"PTS":564},"final":true},{"week":4,"a":4,"b":3,"sa":{"FGM":190,"FGA":375,"FTM":117,"FTA":143,"3PM":60,"REB":225,"AST":152,"STL":28,"BLK":18,"TO":66,"PTS":557},"sb":{"FGM":264,"FGA":563,"FTM":129,"FTA":174,"3PM":75,"REB":252,"AST":186,"STL":39,"BLK":22,"TO":77,"PTS":732},"final":true},{"week":4,"a":6,"b":2,"sa":{"FGM":208,"FGA":444,"FTM":106,"FTA":131,"3PM":74,"REB":198,"AST":142,"STL":36,"BLK":31,"TO":80,"PTS":596},"sb":{"FGM":253,"FGA":539,"FTM":154,"FTA":194,"3PM":55,"REB":224,"AST":143,"STL":45,"BLK":19,"TO":60,"PTS":715},"final":true},{"week":4,"a":8,"b":9,"sa":{"FGM":183,"FGA":384,"FTM":116,"FTA":132,"3PM":56,"REB":154,"AST":107,"STL":24,"BLK":16,"TO":67,"PTS":538},"sb":{"FGM":211,"FGA":438,"FTM":105,"FTA":129,"3PM":73,"REB":238,"AST":143,"STL":45,"BLK":23,"TO":62,"PTS":600},"final":true},{"week":4,"a":10,"b":11,"sa":{"FGM":192,"FGA":407,"FTM":101,"FTA":126,"3PM":45,"REB":212,"AST":167,"STL":32,"BLK":18,"TO":87,"PTS":530},"sb":{"FGM":230,"FGA":457,"FTM":142,"FTA":169,"3PM":53,"REB":191,"AST":157,"STL":50,"BLK":29,"TO":79,"PTS":655},"final":true},{"week":5,"a":5,"b":7,"sa":{"FGM":258,"FGA":561,"FTM":142,"FTA":169,"3PM":78,"REB":262,"AST":181,"STL":55,"BLK":33,"TO":91,"PTS":736},"sb":{"FGM":107,"FGA":241,"FTM":69,"FTA":87,"3PM":34,"REB":113,"AST":87,"STL":17,"BLK":13,"TO":36,"PTS":317},"final":true},{"week":5,"a":1,"b":4,"sa":{"FGM":278,"FGA":532,"FTM":120,"FTA":142,"3PM":79,"REB":251,"AST":126,"STL":41,"BLK":21,"TO":76,"PTS":755},"sb":{"FGM":260,"FGA":518,"FTM":173,"FTA":224,"3PM":67,"REB":239,"AST":169,"STL":38,"BLK":29,"TO":93,"PTS":760},"final":true},{"week":5,"a":0,"b":6,"sa":{"FGM":203,"FGA":412,"FTM":70,"FTA":87,"3PM":64,"REB":157,"AST":151,"STL":31,"BLK":18,"TO":62,"PTS":540},"sb":{"FGM":126,"FGA":305,"FTM":52,"FTA":66,"3PM":40,"REB":137,"AST":95,"STL":27,"BLK":13,"TO":55,"PTS":344},"final":true},{"week":5,"a":3,"b":8,"sa":{"FGM":279,"FGA":542,"FTM":149,"FTA":190,"3PM":71,"REB":206,"AST":131,"STL":38,"BLK":23,"TO":67,"PTS":778},"sb":{"FGM":163,"FGA":328,"FTM":83,"FTA":99,"3PM":54,"REB":145,"AST":73,"STL":37,"BLK":21,"TO":64,"PTS":463},"final":true},{"week":5,"a":2,"b":10,"sa":{"FGM":246,"FGA":485,"FTM":119,"FTA":154,"3PM":59,"REB":179,"AST":145,"STL":33,"BLK":18,"TO":71,"PTS":670},"sb":{"FGM":190,"FGA":400,"FTM":72,"FTA":94,"3PM":59,"REB":162,"AST":139,"STL":31,"BLK":11,"TO":65,"PTS":511},"final":true},{"week":5,"a":9,"b":11,"sa":{"FGM":243,"FGA":497,"FTM":91,"FTA":113,"3PM":68,"REB":276,"AST":136,"STL":38,"BLK":21,"TO":61,"PTS":645},"sb":{"FGM":180,"FGA":384,"FTM":100,"FTA":133,"3PM":42,"REB":174,"AST":125,"STL":47,"BLK":18,"TO":68,"PTS":502},"final":true},{"week":6,"a":7,"b":4,"sa":{"FGM":137,"FGA":260,"FTM":69,"FTA":91,"3PM":43,"REB":107,"AST":64,"STL":26,"BLK":5,"TO":29,"PTS":386},"sb":{"FGM":251,"FGA":520,"FTM":179,"FTA":209,"3PM":71,"REB":242,"AST":148,"STL":39,"BLK":28,"TO":98,"PTS":752},"final":true},{"week":6,"a":6,"b":5,"sa":{"FGM":198,"FGA":433,"FTM":72,"FTA":89,"3PM":56,"REB":189,"AST":108,"STL":44,"BLK":21,"TO":42,"PTS":524},"sb":{"FGM":220,"FGA":463,"FTM":130,"FTA":165,"3PM":57,"REB":195,"AST":156,"STL":25,"BLK":22,"TO":60,"PTS":627},"final":true},{"week":6,"a":8,"b":1,"sa":{"FGM":225,"FGA":460,"FTM":74,"FTA":94,"3PM":72,"REB":188,"AST":140,"STL":34,"BLK":21,"TO":65,"PTS":596},"sb":{"FGM":218,"FGA":470,"FTM":128,"FTA":161,"3PM":54,"REB":201,"AST":108,"STL":36,"BLK":19,"TO":60,"PTS":618},"final":true},{"week":6,"a":10,"b":0,"sa":{"FGM":230,"FGA":495,"FTM":83,"FTA":109,"3PM":76,"REB":164,"AST":124,"STL":40,"BLK":11,"TO":86,"PTS":619},"sb":{"FGM":174,"FGA":373,"FTM":79,"FTA":101,"3PM":55,"REB":198,"AST":146,"STL":42,"BLK":18,"TO":64,"PTS":482},"final":true},{"week":6,"a":11,"b":3,"sa":{"FGM":196,"FGA":397,"FTM":129,"FTA":163,"3PM":45,"REB":226,"AST":162,"STL":34,"BLK":21,"TO":75,"PTS":566},"sb":{"FGM":251,"FGA":545,"FTM":116,"FTA":152,"3PM":63,"REB":247,"AST":139,"STL":42,"BLK":25,"TO":92,"PTS":681},"final":true},{"week":6,"a":9,"b":2,"sa":{"FGM":212,"FGA":406,"FTM":92,"FTA":109,"3PM":64,"REB":225,"AST":136,"STL":30,"BLK":28,"TO":63,"PTS":580},"sb":{"FGM":256,"FGA":534,"FTM":131,"FTA":162,"3PM":59,"REB":220,"AST":164,"STL":38,"BLK":19,"TO":97,"PTS":702},"final":true},{"week":7,"a":6,"b":7,"sa":{"FGM":159,"FGA":331,"FTM":68,"FTA":87,"3PM":41,"REB":144,"AST":95,"STL":34,"BLK":27,"TO":58,"PTS":427},"sb":{"FGM":139,"FGA":286,"FTM":54,"FTA":74,"3PM":45,"REB":127,"AST":74,"STL":19,"BLK":12,"TO":49,"PTS":377},"final":true},{"week":7,"a":4,"b":8,"sa":{"FGM":237,"FGA":495,"FTM":119,"FTA":142,"3PM":57,"REB":241,"AST":157,"STL":39,"BLK":23,"TO":76,"PTS":650},"sb":{"FGM":249,"FGA":504,"FTM":108,"FTA":136,"3PM":61,"REB":214,"AST":128,"STL":32,"BLK":29,"TO":68,"PTS":667},"final":true},{"week":7,"a":5,"b":10,"sa":{"FGM":221,"FGA":452,"FTM":104,"FTA":118,"3PM":77,"REB":193,"AST":167,"STL":36,"BLK":18,"TO":67,"PTS":623},"sb":{"FGM":224,"FGA":464,"FTM":71,"FTA":96,"3PM":68,"REB":174,"AST":132,"STL":25,"BLK":23,"TO":60,"PTS":587},"final":true},{"week":7,"a":1,"b":11,"sa":{"FGM":263,"FGA":515,"FTM":135,"FTA":172,"3PM":70,"REB":222,"AST":111,"STL":25,"BLK":21,"TO":68,"PTS":731},"sb":{"FGM":164,"FGA":348,"FTM":90,"FTA":125,"3PM":34,"REB":210,"AST":128,"STL":32,"BLK":24,"TO":65,"PTS":452},"final":true},{"week":7,"a":0,"b":9,"sa":{"FGM":293,"FGA":617,"FTM":131,"FTA":155,"3PM":93,"REB":253,"AST":184,"STL":56,"BLK":23,"TO":102,"PTS":810},"sb":{"FGM":231,"FGA":536,"FTM":111,"FTA":137,"3PM":75,"REB":238,"AST":177,"STL":40,"BLK":26,"TO":82,"PTS":648},"final":true},{"week":7,"a":3,"b":2,"sa":{"FGM":266,"FGA":540,"FTM":110,"FTA":140,"3PM":61,"REB":249,"AST":161,"STL":44,"BLK":25,"TO":97,"PTS":703},"sb":{"FGM":265,"FGA":556,"FTM":156,"FTA":180,"3PM":66,"REB":202,"AST":162,"STL":45,"BLK":14,"TO":79,"PTS":752},"final":true},{"week":8,"a":7,"b":8,"sa":{"FGM":95,"FGA":198,"FTM":38,"FTA":43,"3PM":29,"REB":59,"AST":50,"STL":10,"BLK":7,"TO":19,"PTS":257},"sb":{"FGM":146,"FGA":312,"FTM":83,"FTA":101,"3PM":39,"REB":98,"AST":71,"STL":22,"BLK":9,"TO":35,"PTS":414},"final":true},{"week":8,"a":10,"b":6,"sa":{"FGM":106,"FGA":221,"FTM":50,"FTA":65,"3PM":32,"REB":86,"AST":72,"STL":25,"BLK":10,"TO":44,"PTS":294},"sb":{"FGM":110,"FGA":228,"FTM":42,"FTA":56,"3PM":18,"REB":110,"AST":83,"STL":16,"BLK":18,"TO":40,"PTS":280},"final":true},{"week":8,"a":11,"b":4,"sa":{"FGM":156,"FGA":292,"FTM":71,"FTA":97,"3PM":35,"REB":156,"AST":73,"STL":28,"BLK":10,"TO":33,"PTS":418},"sb":{"FGM":135,"FGA":309,"FTM":79,"FTA":96,"3PM":34,"REB":169,"AST":101,"STL":27,"BLK":12,"TO":37,"PTS":383},"final":true},{"week":8,"a":9,"b":5,"sa":{"FGM":94,"FGA":191,"FTM":50,"FTA":65,"3PM":29,"REB":104,"AST":56,"STL":8,"BLK":13,"TO":22,"PTS":267},"sb":{"FGM":106,"FGA":232,"FTM":52,"FTA":65,"3PM":36,"REB":126,"AST":76,"STL":28,"BLK":20,"TO":34,"PTS":300},"final":true},{"week":8,"a":2,"b":1,"sa":{"FGM":160,"FGA":337,"FTM":82,"FTA":106,"3PM":39,"REB":103,"AST":99,"STL":24,"BLK":6,"TO":52,"PTS":441},"sb":{"FGM":140,"FGA":293,"FTM":59,"FTA":72,"3PM":35,"REB":96,"AST":69,"STL":26,"BLK":12,"TO":48,"PTS":374},"final":true},{"week":8,"a":3,"b":0,"sa":{"FGM":154,"FGA":309,"FTM":82,"FTA":98,"3PM":48,"REB":145,"AST":81,"STL":22,"BLK":17,"TO":43,"PTS":438},"sb":{"FGM":127,"FGA":260,"FTM":65,"FTA":75,"3PM":42,"REB":107,"AST":109,"STL":31,"BLK":8,"TO":50,"PTS":361},"final":true},{"week":9,"a":10,"b":7,"sa":{"FGM":157,"FGA":347,"FTM":87,"FTA":108,"3PM":63,"REB":124,"AST":100,"STL":26,"BLK":13,"TO":48,"PTS":464},"sb":{"FGM":107,"FGA":245,"FTM":63,"FTA":80,"3PM":34,"REB":110,"AST":78,"STL":27,"BLK":6,"TO":35,"PTS":311},"final":true},{"week":9,"a":8,"b":11,"sa":{"FGM":182,"FGA":378,"FTM":110,"FTA":126,"3PM":59,"REB":150,"AST":90,"STL":22,"BLK":22,"TO":44,"PTS":533},"sb":{"FGM":142,"FGA":292,"FTM":66,"FTA":91,"3PM":28,"REB":170,"AST":96,"STL":31,"BLK":21,"TO":56,"PTS":378},"final":true},{"week":9,"a":6,"b":9,"sa":{"FGM":186,"FGA":373,"FTM":90,"FTA":112,"3PM":34,"REB":186,"AST":87,"STL":24,"BLK":40,"TO":63,"PTS":496},"sb":{"FGM":194,"FGA":402,"FTM":68,"FTA":95,"3PM":60,"REB":211,"AST":114,"STL":27,"BLK":15,"TO":49,"PTS":516},"final":true},{"week":9,"a":4,"b":2,"sa":{"FGM":163,"FGA":338,"FTM":99,"FTA":118,"3PM":40,"REB":169,"AST":104,"STL":33,"BLK":15,"TO":62,"PTS":465},"sb":{"FGM":227,"FGA":498,"FTM":114,"FTA":152,"3PM":55,"REB":199,"AST":175,"STL":24,"BLK":12,"TO":71,"PTS":623},"final":true},{"week":9,"a":5,"b":3,"sa":{"FGM":178,"FGA":380,"FTM":79,"FTA":109,"3PM":58,"REB":144,"AST":112,"STL":34,"BLK":26,"TO":54,"PTS":493},"sb":{"FGM":190,"FGA":415,"FTM":83,"FTA":118,"3PM":42,"REB":180,"AST":116,"STL":37,"BLK":29,"TO":70,"PTS":505},"final":true},{"week":9,"a":1,"b":0,"sa":{"FGM":175,"FGA":386,"FTM":90,"FTA":110,"3PM":53,"REB":178,"AST":89,"STL":35,"BLK":19,"TO":55,"PTS":493},"sb":{"FGM":198,"FGA":404,"FTM":71,"FTA":87,"3PM":55,"REB":183,"AST":137,"STL":33,"BLK":18,"TO":71,"PTS":522},"final":true},{"week":10,"a":7,"b":11,"sa":{"FGM":110,"FGA":264,"FTM":67,"FTA":82,"3PM":35,"REB":108,"AST":94,"STL":18,"BLK":8,"TO":40,"PTS":322},"sb":{"FGM":172,"FGA":350,"FTM":105,"FTA":129,"3PM":29,"REB":182,"AST":117,"STL":22,"BLK":21,"TO":57,"PTS":478},"final":true},{"week":10,"a":9,"b":10,"sa":{"FGM":173,"FGA":382,"FTM":84,"FTA":103,"3PM":56,"REB":208,"AST":132,"STL":39,"BLK":15,"TO":62,"PTS":486},"sb":{"FGM":226,"FGA":465,"FTM":89,"FTA":107,"3PM":78,"REB":130,"AST":147,"STL":32,"BLK":10,"TO":55,"PTS":619},"final":true},{"week":10,"a":2,"b":8,"sa":{"FGM":261,"FGA":521,"FTM":133,"FTA":162,"3PM":68,"REB":177,"AST":173,"STL":44,"BLK":13,"TO":101,"PTS":723},"sb":{"FGM":234,"FGA":473,"FTM":98,"FTA":117,"3PM":75,"REB":178,"AST":141,"STL":42,"BLK":26,"TO":81,"PTS":641},"final":true},{"week":10,"a":3,"b":6,"sa":{"FGM":259,"FGA":507,"FTM":121,"FTA":164,"3PM":58,"REB":238,"AST":133,"STL":41,"BLK":19,"TO":71,"PTS":697},"sb":{"FGM":206,"FGA":414,"FTM":77,"FTA":105,"3PM":58,"REB":177,"AST":115,"STL":31,"BLK":40,"TO":65,"PTS":547},"final":true},{"week":10,"a":0,"b":4,"sa":{"FGM":235,"FGA":494,"FTM":88,"FTA":116,"3PM":59,"REB":214,"AST":128,"STL":49,"BLK":25,"TO":72,"PTS":617},"sb":{"FGM":280,"FGA":544,"FTM":179,"FTA":211,"3PM":60,"REB":266,"AST":159,"STL":35,"BLK":26,"TO":94,"PTS":799},"final":true},{"week":10,"a":1,"b":5,"sa":{"FGM":270,"FGA":552,"FTM":121,"FTA":150,"3PM":71,"REB":216,"AST":108,"STL":44,"BLK":9,"TO":56,"PTS":732},"sb":{"FGM":217,"FGA":467,"FTM":106,"FTA":138,"3PM":72,"REB":237,"AST":166,"STL":43,"BLK":35,"TO":78,"PTS":612},"final":true},{"week":11,"a":9,"b":7,"sa":{"FGM":173,"FGA":348,"FTM":49,"FTA":60,"3PM":50,"REB":197,"AST":112,"STL":32,"BLK":37,"TO":44,"PTS":445},"sb":{"FGM":166,"FGA":353,"FTM":97,"FTA":119,"3PM":41,"REB":149,"AST":93,"STL":18,"BLK":11,"TO":54,"PTS":470},"final":true},{"week":11,"a":11,"b":2,"sa":{"FGM":238,"FGA":459,"FTM":141,"FTA":175,"3PM":52,"REB":226,"AST":161,"STL":37,"BLK":22,"TO":62,"PTS":669},"sb":{"FGM":285,"FGA":572,"FTM":148,"FTA":184,"3PM":64,"REB":222,"AST":215,"STL":41,"BLK":15,"TO":70,"PTS":782},"final":true},{"week":11,"a":10,"b":3,"sa":{"FGM":212,"FGA":483,"FTM":105,"FTA":126,"3PM":67,"REB":192,"AST":140,"STL":35,"BLK":17,"TO":61,"PTS":596},"sb":{"FGM":266,"FGA":517,"FTM":128,"FTA":164,"3PM":73,"REB":198,"AST":161,"STL":35,"BLK":12,"TO":89,"PTS":733},"final":true},{"week":11,"a":8,"b":0,"sa":{"FGM":261,"FGA":521,"FTM":120,"FTA":143,"3PM":89,"REB":224,"AST":181,"STL":26,"BLK":32,"TO":97,"PTS":731},"sb":{"FGM":243,"FGA":507,"FTM":91,"FTA":105,"3PM":63,"REB":193,"AST":187,"STL":37,"BLK":25,"TO":96,"PTS":640},"final":true},{"week":11,"a":6,"b":1,"sa":{"FGM":168,"FGA":376,"FTM":93,"FTA":116,"3PM":43,"REB":169,"AST":114,"STL":36,"BLK":33,"TO":72,"PTS":472},"sb":{"FGM":288,"FGA":575,"FTM":132,"FTA":162,"3PM":91,"REB":215,"AST":133,"STL":41,"BLK":20,"TO":75,"PTS":799},"final":true},{"week":11,"a":4,"b":5,"sa":{"FGM":300,"FGA":595,"FTM":153,"FTA":198,"3PM":80,"REB":270,"AST":173,"STL":53,"BLK":47,"TO":70,"PTS":833},"sb":{"FGM":285,"FGA":581,"FTM":124,"FTA":156,"3PM":91,"REB":268,"AST":196,"STL":51,"BLK":32,"TO":79,"PTS":785},"final":true},{"week":12,"a":7,"b":2,"sa":{"FGM":132,"FGA":278,"FTM":45,"FTA":63,"3PM":39,"REB":94,"AST":77,"STL":21,"BLK":12,"TO":38,"PTS":348},"sb":{"FGM":274,"FGA":592,"FTM":110,"FTA":143,"3PM":73,"REB":229,"AST":181,"STL":38,"BLK":15,"TO":106,"PTS":731},"final":true},{"week":12,"a":3,"b":9,"sa":{"FGM":242,"FGA":552,"FTM":91,"FTA":134,"3PM":71,"REB":205,"AST":174,"STL":46,"BLK":29,"TO":85,"PTS":646},"sb":{"FGM":166,"FGA":349,"FTM":38,"FTA":49,"3PM":54,"REB":181,"AST":108,"STL":30,"BLK":24,"TO":44,"PTS":424},"final":true},{"week":12,"a":0,"b":11,"sa":{"FGM":240,"FGA":533,"FTM":112,"FTA":142,"3PM":53,"REB":262,"AST":198,"STL":44,"BLK":25,"TO":89,"PTS":645},"sb":{"FGM":241,"FGA":508,"FTM":127,"FTA":151,"3PM":42,"REB":234,"AST":157,"STL":39,"BLK":21,"TO":73,"PTS":651},"final":true},{"week":12,"a":1,"b":10,"sa":{"FGM":232,"FGA":515,"FTM":111,"FTA":138,"3PM":53,"REB":240,"AST":117,"STL":45,"BLK":28,"TO":93,"PTS":628},"sb":{"FGM":156,"FGA":353,"FTM":46,"FTA":55,"3PM":55,"REB":164,"AST":114,"STL":28,"BLK":17,"TO":54,"PTS":413},"final":true},{"week":12,"a":5,"b":8,"sa":{"FGM":278,"FGA":586,"FTM":115,"FTA":136,"3PM":101,"REB":243,"AST":166,"STL":48,"BLK":28,"TO":101,"PTS":772},"sb":{"FGM":281,"FGA":559,"FTM":93,"FTA":132,"3PM":86,"REB":204,"AST":135,"STL":31,"BLK":27,"TO":71,"PTS":741},"final":true},{"week":12,"a":4,"b":6,"sa":{"FGM":286,"FGA":550,"FTM":129,"FTA":174,"3PM":65,"REB":301,"AST":162,"STL":50,"BLK":35,"TO":107,"PTS":766},"sb":{"FGM":243,"FGA":526,"FTM":87,"FTA":99,"3PM":64,"REB":242,"AST":122,"STL":42,"BLK":40,"TO":85,"PTS":637},"final":true},{"week":13,"a":3,"b":7,"sa":{"FGM":215,"FGA":454,"FTM":82,"FTA":110,"3PM":63,"REB":219,"AST":164,"STL":23,"BLK":14,"TO":68,"PTS":575},"sb":{"FGM":157,"FGA":316,"FTM":72,"FTA":99,"3PM":55,"REB":86,"AST":85,"STL":21,"BLK":9,"TO":37,"PTS":441},"final":true},{"week":13,"a":2,"b":0,"sa":{"FGM":183,"FGA":391,"FTM":75,"FTA":88,"3PM":50,"REB":148,"AST":91,"STL":24,"BLK":10,"TO":68,"PTS":491},"sb":{"FGM":207,"FGA":422,"FTM":99,"FTA":128,"3PM":53,"REB":174,"AST":148,"STL":29,"BLK":18,"TO":65,"PTS":566},"final":true},{"week":13,"a":9,"b":1,"sa":{"FGM":105,"FGA":226,"FTM":25,"FTA":32,"3PM":43,"REB":84,"AST":84,"STL":21,"BLK":8,"TO":34,"PTS":278},"sb":{"FGM":215,"FGA":450,"FTM":108,"FTA":135,"3PM":74,"REB":214,"AST":102,"STL":22,"BLK":22,"TO":56,"PTS":612},"final":true},{"week":13,"a":11,"b":5,"sa":{"FGM":180,"FGA":350,"FTM":87,"FTA":118,"3PM":42,"REB":157,"AST":132,"STL":32,"BLK":18,"TO":56,"PTS":489},"sb":{"FGM":204,"FGA":422,"FTM":94,"FTA":119,"3PM":61,"REB":212,"AST":112,"STL":31,"BLK":25,"TO":53,"PTS":563},"final":true},{"week":13,"a":10,"b":4,"sa":{"FGM":279,"FGA":564,"FTM":139,"FTA":165,"3PM":83,"REB":236,"AST":174,"STL":38,"BLK":24,"TO":96,"PTS":780},"sb":{"FGM":250,"FGA":522,"FTM":130,"FTA":161,"3PM":69,"REB":254,"AST":160,"STL":42,"BLK":30,"TO":88,"PTS":699},"final":true},{"week":13,"a":8,"b":6,"sa":{"FGM":228,"FGA":473,"FTM":112,"FTA":136,"3PM":86,"REB":165,"AST":131,"STL":28,"BLK":31,"TO":62,"PTS":654},"sb":{"FGM":203,"FGA":412,"FTM":75,"FTA":90,"3PM":54,"REB":157,"AST":124,"STL":27,"BLK":22,"TO":45,"PTS":535},"final":true},{"week":14,"a":7,"b":0,"sa":{"FGM":126,"FGA":288,"FTM":96,"FTA":120,"3PM":31,"REB":155,"AST":85,"STL":25,"BLK":8,"TO":47,"PTS":379},"sb":{"FGM":172,"FGA":369,"FTM":94,"FTA":113,"3PM":49,"REB":157,"AST":125,"STL":36,"BLK":18,"TO":51,"PTS":487},"final":true},{"week":14,"a":1,"b":3,"sa":{"FGM":288,"FGA":583,"FTM":152,"FTA":188,"3PM":76,"REB":230,"AST":141,"STL":37,"BLK":19,"TO":72,"PTS":804},"sb":{"FGM":203,"FGA":457,"FTM":107,"FTA":144,"3PM":46,"REB":234,"AST":140,"STL":47,"BLK":19,"TO":76,"PTS":559},"final":true},{"week":14,"a":5,"b":2,"sa":{"FGM":179,"FGA":411,"FTM":52,"FTA":60,"3PM":64,"REB":173,"AST":123,"STL":48,"BLK":28,"TO":58,"PTS":474},"sb":{"FGM":276,"FGA":606,"FTM":162,"FTA":201,"3PM":79,"REB":229,"AST":220,"STL":46,"BLK":21,"TO":99,"PTS":793},"final":true},{"week":14,"a":4,"b":9,"sa":{"FGM":264,"FGA":568,"FTM":169,"FTA":212,"3PM":59,"REB":324,"AST":185,"STL":42,"BLK":30,"TO":107,"PTS":756},"sb":{"FGM":147,"FGA":289,"FTM":30,"FTA":38,"3PM":57,"REB":111,"AST":80,"STL":16,"BLK":13,"TO":40,"PTS":381},"final":true},{"week":14,"a":6,"b":11,"sa":{"FGM":182,"FGA":433,"FTM":116,"FTA":138,"3PM":51,"REB":246,"AST":123,"STL":34,"BLK":32,"TO":81,"PTS":531},"sb":{"FGM":240,"FGA":485,"FTM":102,"FTA":137,"3PM":58,"REB":237,"AST":192,"STL":43,"BLK":32,"TO":75,"PTS":640},"final":true},{"week":14,"a":8,"b":10,"sa":{"FGM":214,"FGA":469,"FTM":97,"FTA":116,"3PM":80,"REB":184,"AST":133,"STL":32,"BLK":22,"TO":70,"PTS":605},"sb":{"FGM":237,"FGA":512,"FTM":93,"FTA":110,"3PM":72,"REB":198,"AST":163,"STL":43,"BLK":17,"TO":79,"PTS":639},"final":true},{"week":15,"a":1,"b":7,"sa":{"FGM":238,"FGA":488,"FTM":117,"FTA":141,"3PM":64,"REB":236,"AST":112,"STL":40,"BLK":23,"TO":75,"PTS":657},"sb":{"FGM":131,"FGA":274,"FTM":51,"FTA":64,"3PM":44,"REB":98,"AST":67,"STL":14,"BLK":2,"TO":31,"PTS":357},"final":true},{"week":15,"a":0,"b":5,"sa":{"FGM":215,"FGA":481,"FTM":82,"FTA":103,"3PM":66,"REB":197,"AST":159,"STL":48,"BLK":26,"TO":72,"PTS":578},"sb":{"FGM":301,"FGA":625,"FTM":65,"FTA":90,"3PM":105,"REB":255,"AST":170,"STL":53,"BLK":44,"TO":98,"PTS":772},"final":true},{"week":15,"a":3,"b":4,"sa":{"FGM":262,"FGA":529,"FTM":132,"FTA":169,"3PM":61,"REB":265,"AST":187,"STL":53,"BLK":22,"TO":66,"PTS":717},"sb":{"FGM":263,"FGA":562,"FTM":135,"FTA":166,"3PM":77,"REB":306,"AST":216,"STL":39,"BLK":25,"TO":90,"PTS":738},"final":true},{"week":15,"a":2,"b":6,"sa":{"FGM":308,"FGA":620,"FTM":120,"FTA":153,"3PM":74,"REB":235,"AST":188,"STL":58,"BLK":22,"TO":76,"PTS":810},"sb":{"FGM":260,"FGA":529,"FTM":106,"FTA":134,"3PM":57,"REB":210,"AST":129,"STL":47,"BLK":38,"TO":84,"PTS":683},"final":true},{"week":15,"a":9,"b":8,"sa":{"FGM":172,"FGA":355,"FTM":59,"FTA":77,"3PM":53,"REB":168,"AST":123,"STL":31,"BLK":20,"TO":47,"PTS":456},"sb":{"FGM":268,"FGA":574,"FTM":107,"FTA":130,"3PM":94,"REB":232,"AST":148,"STL":37,"BLK":34,"TO":67,"PTS":737},"final":true},{"week":15,"a":11,"b":10,"sa":{"FGM":158,"FGA":329,"FTM":117,"FTA":159,"3PM":35,"REB":201,"AST":117,"STL":29,"BLK":30,"TO":75,"PTS":468},"sb":{"FGM":250,"FGA":535,"FTM":130,"FTA":165,"3PM":77,"REB":203,"AST":147,"STL":46,"BLK":14,"TO":84,"PTS":707},"final":true},{"week":16,"a":7,"b":5,"sa":{"FGM":60,"FGA":146,"FTM":37,"FTA":42,"3PM":22,"REB":51,"AST":32,"STL":13,"BLK":5,"TO":15,"PTS":179},"sb":{"FGM":173,"FGA":410,"FTM":86,"FTA":103,"3PM":70,"REB":195,"AST":119,"STL":50,"BLK":21,"TO":56,"PTS":502},"final":true},{"week":16,"a":4,"b":1,"sa":{"FGM":234,"FGA":464,"FTM":127,"FTA":161,"3PM":55,"REB":263,"AST":162,"STL":39,"BLK":17,"TO":87,"PTS":650},"sb":{"FGM":201,"FGA":424,"FTM":100,"FTA":122,"3PM":68,"REB":176,"AST":97,"STL":37,"BLK":20,"TO":48,"PTS":570},"final":true},{"week":16,"a":6,"b":0,"sa":{"FGM":155,"FGA":337,"FTM":80,"FTA":98,"3PM":51,"REB":126,"AST":95,"STL":19,"BLK":26,"TO":36,"PTS":441},"sb":{"FGM":123,"FGA":292,"FTM":47,"FTA":64,"3PM":35,"REB":144,"AST":133,"STL":24,"BLK":12,"TO":47,"PTS":328},"final":true},{"week":16,"a":8,"b":3,"sa":{"FGM":198,"FGA":404,"FTM":76,"FTA":94,"3PM":78,"REB":148,"AST":77,"STL":28,"BLK":20,"TO":60,"PTS":550},"sb":{"FGM":235,"FGA":493,"FTM":131,"FTA":171,"3PM":69,"REB":243,"AST":131,"STL":38,"BLK":22,"TO":83,"PTS":670},"final":true},{"week":16,"a":10,"b":2,"sa":{"FGM":219,"FGA":458,"FTM":84,"FTA":96,"3PM":67,"REB":176,"AST":136,"STL":41,"BLK":11,"TO":63,"PTS":589},"sb":{"FGM":235,"FGA":512,"FTM":119,"FTA":156,"3PM":52,"REB":169,"AST":141,"STL":27,"BLK":16,"TO":71,"PTS":641},"final":true},{"week":16,"a":11,"b":9,"sa":{"FGM":147,"FGA":279,"FTM":62,"FTA":85,"3PM":19,"REB":163,"AST":112,"STL":27,"BLK":18,"TO":49,"PTS":375},"sb":{"FGM":197,"FGA":409,"FTM":77,"FTA":98,"3PM":62,"REB":211,"AST":121,"STL":30,"BLK":17,"TO":64,"PTS":533},"final":true},{"week":17,"a":4,"b":7,"sa":{"FGM":340,"FGA":708,"FTM":183,"FTA":217,"3PM":84,"REB":332,"AST":221,"STL":51,"BLK":24,"TO":119,"PTS":947},"sb":{"FGM":129,"FGA":311,"FTM":82,"FTA":108,"3PM":45,"REB":93,"AST":89,"STL":25,"BLK":12,"TO":46,"PTS":385},"final":true},{"week":17,"a":5,"b":6,"sa":{"FGM":300,"FGA":634,"FTM":131,"FTA":168,"3PM":117,"REB":266,"AST":178,"STL":52,"BLK":41,"TO":92,"PTS":848},"sb":{"FGM":215,"FGA":449,"FTM":109,"FTA":137,"3PM":49,"REB":190,"AST":129,"STL":45,"BLK":31,"TO":65,"PTS":588},"final":true},{"week":17,"a":1,"b":8,"sa":{"FGM":280,"FGA":600,"FTM":122,"FTA":166,"3PM":94,"REB":253,"AST":131,"STL":61,"BLK":27,"TO":91,"PTS":776},"sb":{"FGM":270,"FGA":585,"FTM":135,"FTA":167,"3PM":89,"REB":266,"AST":147,"STL":50,"BLK":45,"TO":99,"PTS":764},"final":true},{"week":17,"a":0,"b":10,"sa":{"FGM":176,"FGA":378,"FTM":79,"FTA":95,"3PM":54,"REB":188,"AST":186,"STL":48,"BLK":21,"TO":81,"PTS":485},"sb":{"FGM":257,"FGA":590,"FTM":108,"FTA":137,"3PM":81,"REB":288,"AST":198,"STL":42,"BLK":23,"TO":103,"PTS":703},"final":true},{"week":17,"a":3,"b":11,"sa":{"FGM":265,"FGA":536,"FTM":122,"FTA":154,"3PM":83,"REB":208,"AST":136,"STL":46,"BLK":23,"TO":91,"PTS":735},"sb":{"FGM":163,"FGA":341,"FTM":102,"FTA":130,"3PM":31,"REB":160,"AST":129,"STL":37,"BLK":14,"TO":56,"PTS":459},"final":true},{"week":17,"a":2,"b":9,"sa":{"FGM":304,"FGA":621,"FTM":143,"FTA":176,"3PM":59,"REB":282,"AST":212,"STL":38,"BLK":25,"TO":82,"PTS":810},"sb":{"FGM":243,"FGA":496,"FTM":102,"FTA":135,"3PM":68,"REB":282,"AST":149,"STL":39,"BLK":27,"TO":92,"PTS":656},"final":true},{"week":18,"a":7,"b":6,"sa":{"FGM":115,"FGA":258,"FTM":58,"FTA":73,"3PM":38,"REB":106,"AST":102,"STL":25,"BLK":12,"TO":45,"PTS":326},"sb":{"FGM":164,"FGA":378,"FTM":91,"FTA":112,"3PM":57,"REB":195,"AST":117,"STL":31,"BLK":42,"TO":74,"PTS":476},"final":true},{"week":18,"a":8,"b":4,"sa":{"FGM":234,"FGA":470,"FTM":94,"FTA":119,"3PM":70,"REB":199,"AST":134,"STL":41,"BLK":31,"TO":57,"PTS":632},"sb":{"FGM":187,"FGA":386,"FTM":91,"FTA":122,"3PM":63,"REB":190,"AST":102,"STL":34,"BLK":18,"TO":75,"PTS":528},"final":true},{"week":18,"a":10,"b":5,"sa":{"FGM":223,"FGA":457,"FTM":85,"FTA":108,"3PM":68,"REB":198,"AST":135,"STL":26,"BLK":28,"TO":85,"PTS":599},"sb":{"FGM":204,"FGA":430,"FTM":60,"FTA":75,"3PM":86,"REB":195,"AST":141,"STL":47,"BLK":21,"TO":47,"PTS":554},"final":true},{"week":18,"a":11,"b":1,"sa":{"FGM":167,"FGA":368,"FTM":71,"FTA":100,"3PM":22,"REB":189,"AST":132,"STL":30,"BLK":19,"TO":65,"PTS":427},"sb":{"FGM":192,"FGA":429,"FTM":106,"FTA":127,"3PM":60,"REB":164,"AST":99,"STL":32,"BLK":18,"TO":67,"PTS":550},"final":true},{"week":18,"a":9,"b":0,"sa":{"FGM":167,"FGA":368,"FTM":61,"FTA":76,"3PM":52,"REB":173,"AST":121,"STL":36,"BLK":17,"TO":43,"PTS":447},"sb":{"FGM":173,"FGA":371,"FTM":68,"FTA":87,"3PM":58,"REB":186,"AST":136,"STL":30,"BLK":18,"TO":62,"PTS":472},"final":true},{"week":18,"a":2,"b":3,"sa":{"FGM":254,"FGA":514,"FTM":139,"FTA":174,"3PM":58,"REB":218,"AST":152,"STL":46,"BLK":26,"TO":80,"PTS":705},"sb":{"FGM":259,"FGA":508,"FTM":113,"FTA":162,"3PM":56,"REB":248,"AST":163,"STL":48,"BLK":30,"TO":80,"PTS":687},"final":true},{"week":19,"a":8,"b":7,"sa":{"FGM":234,"FGA":487,"FTM":136,"FTA":165,"3PM":77,"REB":213,"AST":135,"STL":35,"BLK":21,"TO":85,"PTS":681},"sb":{"FGM":120,"FGA":268,"FTM":63,"FTA":86,"3PM":28,"REB":112,"AST":81,"STL":22,"BLK":8,"TO":36,"PTS":331},"final":true},{"week":19,"a":6,"b":10,"sa":{"FGM":205,"FGA":429,"FTM":114,"FTA":135,"3PM":56,"REB":215,"AST":127,"STL":37,"BLK":50,"TO":62,"PTS":580},"sb":{"FGM":201,"FGA":392,"FTM":79,"FTA":103,"3PM":71,"REB":187,"AST":165,"STL":45,"BLK":20,"TO":62,"PTS":552},"final":true},{"week":19,"a":4,"b":11,"sa":{"FGM":251,"FGA":503,"FTM":153,"FTA":189,"3PM":67,"REB":257,"AST":161,"STL":49,"BLK":13,"TO":69,"PTS":722},"sb":{"FGM":204,"FGA":443,"FTM":99,"FTA":122,"3PM":48,"REB":173,"AST":129,"STL":38,"BLK":19,"TO":57,"PTS":555},"final":true},{"week":19,"a":5,"b":9,"sa":{"FGM":221,"FGA":500,"FTM":105,"FTA":125,"3PM":77,"REB":244,"AST":146,"STL":55,"BLK":39,"TO":75,"PTS":624},"sb":{"FGM":166,"FGA":343,"FTM":76,"FTA":90,"3PM":38,"REB":151,"AST":96,"STL":29,"BLK":36,"TO":50,"PTS":446},"final":true},{"week":19,"a":1,"b":2,"sa":{"FGM":183,"FGA":385,"FTM":110,"FTA":146,"3PM":39,"REB":169,"AST":85,"STL":36,"BLK":14,"TO":53,"PTS":515},"sb":{"FGM":250,"FGA":564,"FTM":133,"FTA":170,"3PM":60,"REB":237,"AST":225,"STL":30,"BLK":17,"TO":94,"PTS":693},"final":true},{"week":19,"a":0,"b":3,"sa":{"FGM":221,"FGA":432,"FTM":82,"FTA":103,"3PM":71,"REB":192,"AST":155,"STL":45,"BLK":15,"TO":59,"PTS":595},"sb":{"FGM":261,"FGA":542,"FTM":119,"FTA":162,"3PM":76,"REB":211,"AST":151,"STL":42,"BLK":21,"TO":91,"PTS":717},"final":true}],"games":[[27,40,37,35,30,30,43,20,28,36,38,38,33,28,35,29,37,32,40],[28,33,43,43,39,33,35,18,28,39,39,37,35,41,39,33,46,32,29],[32,39,46,35,35,35,40,24,31,35,38,38,27,42,41,32,40,36,41],[34,37,41,39,37,40,44,24,32,39,44,43,39,39,44,38,44,42,46],[31,37,30,31,42,38,36,22,29,41,45,45,40,45,45,37,52,32,38],[32,42,34,39,42,34,35,20,28,40,47,43,34,32,48,35,50,35,44],[30,35,36,33,26,36,29,20,28,32,33,42,33,38,40,27,39,37,40],[22,22,21,15,21,19,22,13,19,20,27,21,23,24,18,13,24,25,21],[26,30,32,27,26,38,38,24,30,40,41,38,30,33,40,30,47,34,39],[32,46,41,41,37,38,46,17,31,33,31,31,23,25,33,35,40,34,29],[35,40,36,37,32,35,34,20,25,31,34,30,44,41,42,33,50,39,38],[28,34,32,37,30,36,32,22,24,29,39,40,29,39,29,25,29,30,35]],"gamesPlanned":[[33,43,44,42,41,37,51,23,35,41,48,48,40,46,49,42,53,44,49],[36,46,46,45,47,41,46,24,33,45,47,48,47,45,46,42,57,43,43],[33,42,47,42,45,45,48,23,36,39,48,49,41,48,49,42,54,44,45],[36,40,41,44,42,42,47,21,32,39,43,43,37,43,45,38,51,42,44],[36,47,45,43,48,42,45,26,31,43,49,47,43,46,49,41,55,41,42],[36,45,43,44,47,41,49,26,33,40,47,50,46,40,50,44,57,42,47],[34,40,40,41,39,39,41,25,33,40,48,49,43,50,48,43,51,44,46],[35,45,47,45,47,44,45,27,33,43,49,46,44,45,48,42,58,43,41],[32,42,44,40,39,42,46,26,36,41,46,47,44,43,51,43,59,43,47],[33,48,46,44,42,42,46,21,36,41,46,47,42,47,50,44,55,44,44],[35,39,44,44,46,44,43,28,31,39,49,48,47,47,46,38,57,39,43],[36,43,47,46,43,43,47,27,30,41,48,46,42,53,45,43,52,42,44]],"final":true,"source":"ESPN, full 19-week regular season","dist":[[[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[10000,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0]],[[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[10000,10000],[0,0],[0,0],[0,0],[0,0],[0,0]],[[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[10000,10000],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0]],[[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[10000,10000],[0,0],[0,0],[0,0],[0,0],[0,0]],[[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[10000,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0]],[[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[10000,10000],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0]],[[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[10000,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0]],[[10000,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0]],[[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[10000,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0]],[[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[10000,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0]],[[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[10000,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0]],[[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[10000,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0]]],"snaps":[{"asOf":0,"model":"v5 · v4 plus week-to-week strength drift in season simulations","runs":10000,"ranOn":"2026-11-01","teams":[{"projW":9.2181,"projT":0.4147,"po":0.3214,"title":0.0849},{"projW":9.5338,"projT":0.421,"po":0.356,"title":0.0876},{"projW":10.0933,"projT":0.4321,"po":0.4144,"title":0.0963},{"projW":7.9076,"projT":0.4162,"po":0.2004,"title":0.0605},{"projW":9.0151,"projT":0.4099,"po":0.3054,"title":0.0787},{"projW":10.1874,"projT":0.4126,"po":0.4267,"title":0.0931},{"projW":8.3269,"projT":0.4182,"po":0.2387,"title":0.0698},{"projW":10.172,"projT":0.4221,"po":0.4252,"title":0.0974},{"projW":9.4968,"projT":0.4214,"po":0.357,"title":0.0905},{"projW":8.903,"projT":0.405,"po":0.291,"title":0.0775},{"projW":9.2484,"projT":0.4083,"po":0.3196,"title":0.0783},{"projW":9.3977,"projT":0.4183,"po":0.3442,"title":0.0854}]},{"asOf":1,"model":"v5 · v4 plus week-to-week strength drift in season simulations","runs":10000,"ranOn":"2026-11-01","teams":[{"projW":6.0744,"projT":0.3882,"po":0.0569,"title":0.0144},{"projW":10.68,"projT":0.4198,"po":0.4544,"title":0.1549},{"projW":11.6158,"projT":0.3945,"po":0.5767,"title":0.0917},{"projW":9.3102,"projT":0.4306,"po":0.2868,"title":0.0603},{"projW":8.2324,"projT":0.3916,"po":0.1897,"title":0.0499},{"projW":12.674,"projT":0.3556,"po":0.7157,"title":0.1856},{"projW":11.1276,"projT":0.3632,"po":0.5161,"title":0.1619},{"projW":5.3002,"projT":0.3581,"po":0.0278,"title":0.0103},{"projW":8.6656,"projT":0.3952,"po":0.2307,"title":0.0609},{"projW":10.7384,"projT":0.385,"po":0.4825,"title":0.1066},{"projW":8.9892,"projT":0.3758,"po":0.2669,"title":0.042},{"projW":8.2633,"projT":0.4002,"po":0.1958,"title":0.0615}]},{"asOf":2,"model":"v5 · v4 plus week-to-week strength drift in season simulations","runs":10000,"ranOn":"2026-11-01","teams":[{"projW":7.1173,"projT":0.3768,"po":0.078,"title":0.0185},{"projW":9.8557,"projT":0.3992,"po":0.3216,"title":0.1412},{"projW":13.318,"projT":0.3522,"po":0.7755,"title":0.1668},{"projW":10.2237,"projT":0.3943,"po":0.3599,"title":0.0858},{"projW":7.1532,"projT":0.3701,"po":0.0778,"title":0.0288},{"projW":11.6764,"projT":1.3471,"po":0.6495,"title":0.1389},{"projW":10.0377,"projT":0.3632,"po":0.3302,"title":0.0897},{"projW":3.0888,"projT":0.2704,"po":0.0005,"title":0.0003},{"projW":6.7127,"projT":0.3579,"po":0.054,"title":0.0206},{"projW":11.2325,"projT":0.3633,"po":0.5207,"title":0.1187},{"projW":11.3876,"projT":0.3491,"po":0.5458,"title":0.0872},{"projW":9.028,"projT":1.3932,"po":0.2865,"title":0.1035}]},{"asOf":3,"model":"v5 · v4 plus week-to-week strength drift in season simulations","runs":10000,"ranOn":"2026-11-01","teams":[{"projW":7.955,"projT":0.3588,"po":0.102,"title":0.0281},{"projW":11.434,"projT":0.3614,"po":0.5109,"title":0.1566},{"projW":14.3623,"projT":0.3116,"po":0.8706,"title":0.1857},{"projW":10.8912,"projT":0.3557,"po":0.4222,"title":0.0879},{"projW":6.0324,"projT":0.3331,"po":0.0197,"title":0.0073},{"projW":11.8942,"projT":1.3053,"po":0.6731,"title":0.1995},{"projW":9.6612,"projT":0.3407,"po":0.232,"title":0.0574},{"projW":1.5946,"projT":0.1747,"po":0,"title":0},{"projW":6.3124,"projT":0.3287,"po":0.0222,"title":0.0092},{"projW":11.4505,"projT":0.3281,"po":0.5155,"title":0.1146},{"projW":11.224,"projT":0.3227,"po":0.4795,"title":0.0922},{"projW":8.2489,"projT":1.3578,"po":0.1523,"title":0.0615}]},{"asOf":4,"model":"v5 · v4 plus week-to-week strength drift in season simulations","runs":10000,"ranOn":"2026-11-01","teams":[{"projW":7.4462,"projT":0.3436,"po":0.0586,"title":0.0145},{"projW":12.9507,"projT":0.3381,"po":0.746,"title":0.2238},{"projW":14.4519,"projT":0.3007,"po":0.8829,"title":0.2123},{"projW":11.3063,"projT":0.3568,"po":0.4615,"title":0.104},{"projW":6.2329,"projT":0.3206,"po":0.0137,"title":0.0059},{"projW":11.4904,"projT":1.2814,"po":0.5818,"title":0.1208},{"projW":10.0215,"projT":0.3175,"po":0.255,"title":0.0741},{"projW":0.8564,"projT":0.1143,"po":0,"title":0},{"projW":5.8094,"projT":0.3015,"po":0.007,"title":0.0024},{"projW":11.7474,"projT":0.3257,"po":0.5569,"title":0.1175},{"projW":9.5642,"projT":0.3128,"po":0.1998,"title":0.0372},{"projW":9.2893,"projT":1.3538,"po":0.2368,"title":0.0875}]},{"asOf":5,"model":"v5 · v4 plus week-to-week strength drift in season simulations","runs":10000,"ranOn":"2026-11-01","teams":[{"projW":8.3191,"projT":0.3353,"po":0.0792,"title":0.0217},{"projW":13.6795,"projT":0.3025,"po":0.8197,"title":0.2483},{"projW":14.0041,"projT":0.2947,"po":0.8466,"title":0.1858},{"projW":12.1425,"projT":0.3417,"po":0.5735,"title":0.141},{"projW":6.7815,"projT":0.308,"po":0.0121,"title":0.0057},{"projW":12.6592,"projT":1.2504,"po":0.7718,"title":0.179},{"projW":7.6976,"projT":0.2846,"po":0.0286,"title":0.0083},{"projW":0.7015,"projT":0.1004,"po":0,"title":0},{"projW":5.8022,"projT":0.2839,"po":0.0039,"title":0.0011},{"projW":12.6986,"projT":0.2746,"po":0.704,"title":0.1597},{"projW":8.3556,"projT":0.2838,"po":0.0578,"title":0.0117},{"projW":8.4742,"projT":1.3089,"po":0.1028,"title":0.0377}]},{"asOf":6,"model":"v5 · v4 plus week-to-week strength drift in season simulations","runs":10000,"ranOn":"2026-11-01","teams":[{"projW":9.6054,"projT":0.3221,"po":0.1947,"title":0.0618},{"projW":13.2669,"projT":0.3083,"po":0.7773,"title":0.2184},{"projW":12.9907,"projT":0.2974,"po":0.7398,"title":0.1647},{"projW":12.0104,"projT":0.3198,"po":0.5472,"title":0.113},{"projW":7.6037,"projT":0.3152,"po":0.0297,"title":0.0126},{"projW":12.5515,"projT":1.2623,"po":0.7763,"title":0.1891},{"projW":8.047,"projT":0.2712,"po":0.0354,"title":0.0122},{"projW":0.5768,"projT":0.0857,"po":0,"title":0},{"projW":6.097,"projT":0.2801,"po":0.0033,"title":0.0014},{"projW":13.2247,"projT":0.2611,"po":0.7951,"title":0.1897},{"projW":7.1141,"projT":0.2762,"po":0.0149,"title":0.0049},{"projW":8.2647,"projT":1.2948,"po":0.0863,"title":0.0322}]},{"asOf":7,"model":"v5 · v4 plus week-to-week strength drift in season simulations","runs":10000,"ranOn":"2026-11-01","teams":[{"projW":10.9004,"projT":0.2783,"po":0.3798,"title":0.1132},{"projW":13.3582,"projT":0.2924,"po":0.7972,"title":0.239},{"projW":13.5975,"projT":0.2722,"po":0.8391,"title":0.1815},{"projW":11.264,"projT":0.3002,"po":0.3993,"title":0.0818},{"projW":7.4205,"projT":0.2951,"po":0.0163,"title":0.0075},{"projW":12.4954,"projT":1.253,"po":0.7701,"title":0.2214},{"projW":7.6078,"projT":0.2568,"po":0.0167,"title":0.0046},{"projW":0.4869,"projT":0.0721,"po":0,"title":0},{"projW":7.1478,"projT":0.2414,"po":0.0089,"title":0.0038},{"projW":12.779,"projT":0.2435,"po":0.7385,"title":0.1359},{"projW":7.2702,"projT":0.2692,"po":0.0135,"title":0.0045},{"projW":7.1568,"projT":1.2568,"po":0.0206,"title":0.0068}]},{"asOf":8,"model":"v5 · v4 plus week-to-week strength drift in season simulations","runs":10000,"ranOn":"2026-11-01","teams":[{"projW":10.8002,"projT":0.2436,"po":0.3229,"title":0.1162},{"projW":13.356,"projT":0.2557,"po":0.7788,"title":0.2287},{"projW":13.2541,"projT":0.2218,"po":0.7877,"title":0.1266},{"projW":13.0204,"projT":0.2295,"po":0.7298,"title":0.1419},{"projW":7.0488,"projT":0.2648,"po":0.0048,"title":0.0019},{"projW":12.6087,"projT":1.2159,"po":0.7806,"title":0.2565},{"projW":7.8949,"projT":0.2059,"po":0.0133,"title":0.0028},{"projW":0.5066,"projT":0.0718,"po":0,"title":0},{"projW":7.213,"projT":0.242,"po":0.0063,"title":0.0023},{"projW":11.9189,"projT":0.2118,"po":0.5255,"title":0.1066},{"projW":5.7898,"projT":0.2257,"po":0.0006,"title":0},{"projW":8.2811,"projT":1.2265,"po":0.0497,"title":0.0165}]},{"asOf":9,"model":"v5 · v4 plus week-to-week strength drift in season simulations","runs":10000,"ranOn":"2026-11-01","teams":[{"projW":11.1159,"projT":0.2075,"po":0.4021,"title":0.1469},{"projW":13.0566,"projT":0.2231,"po":0.7768,"title":0.2306},{"projW":12.4122,"projT":0.2045,"po":0.6847,"title":0.1211},{"projW":13.0808,"projT":0.2162,"po":0.7592,"title":0.1214},{"projW":7.7814,"projT":0.2386,"po":0.0123,"title":0.0048},{"projW":12.1789,"projT":1.1897,"po":0.7557,"title":0.2397},{"projW":8.0209,"projT":0.1913,"po":0.015,"title":0.0053},{"projW":0.4282,"projT":0.0566,"po":0,"title":0},{"projW":7.5434,"projT":0.2284,"po":0.0077,"title":0.0028},{"projW":11.8207,"projT":0.2172,"po":0.5417,"title":0.1103},{"projW":6.2813,"projT":0.2162,"po":0.0016,"title":0.0005},{"projW":8.0835,"projT":1.2031,"po":0.0432,"title":0.0166}]},{"asOf":10,"model":"v5 · v4 plus week-to-week strength drift in season simulations","runs":10000,"ranOn":"2026-11-01","teams":[{"projW":10.6428,"projT":0.1843,"po":0.3345,"title":0.1262},{"projW":13.2157,"projT":0.1952,"po":0.8563,"title":0.2255},{"projW":12.0452,"projT":0.1738,"po":0.705,"title":0.1453},{"projW":13.2687,"projT":0.202,"po":0.8472,"title":0.1271},{"projW":8.4374,"projT":0.2091,"po":0.0285,"title":0.0115},{"projW":12.2153,"projT":1.1515,"po":0.8414,"title":0.2675},{"projW":7.853,"projT":0.1799,"po":0.0088,"title":0.0028},{"projW":0.2541,"projT":0.036,"po":0,"title":0},{"projW":8.356,"projT":0.1969,"po":0.0231,"title":0.0066},{"projW":10.6455,"projT":0.1944,"po":0.3241,"title":0.0755},{"projW":7.3586,"projT":0.2021,"po":0.0066,"title":0.0022},{"projW":7.6523,"projT":1.1856,"po":0.0245,"title":0.0098}]},{"asOf":11,"model":"v5 · v4 plus week-to-week strength drift in season simulations","runs":10000,"ranOn":"2026-11-01","teams":[{"projW":9.7688,"projT":0.1632,"po":0.1648,"title":0.0575},{"projW":13.7164,"projT":0.1689,"po":0.9424,"title":0.2523},{"projW":11.4804,"projT":0.148,"po":0.6217,"title":0.1594},{"projW":13.3447,"projT":0.1714,"po":0.8874,"title":0.0964},{"projW":9.5065,"projT":0.1655,"po":0.0951,"title":0.0373},{"projW":12.2016,"projT":1.1148,"po":0.894,"title":0.2795},{"projW":6.9219,"projT":0.1289,"po":0.0011,"title":0.0002},{"projW":0.2171,"projT":0.0292,"po":0,"title":0},{"projW":9.3151,"projT":0.1672,"po":0.0612,"title":0.0146},{"projW":10.3189,"projT":0.19,"po":0.2645,"title":0.0806},{"projW":6.6713,"projT":0.1713,"po":0.001,"title":0.0006},{"projW":8.6434,"projT":1.1694,"po":0.0668,"title":0.0216}]},{"asOf":12,"model":"v5 · v4 plus week-to-week strength drift in season simulations","runs":10000,"ranOn":"2026-11-01","teams":[{"projW":10.1325,"projT":0.1434,"po":0.1856,"title":0.0674},{"projW":13.8668,"projT":0.1519,"po":0.9684,"title":0.2338},{"projW":11.3912,"projT":0.1554,"po":0.6148,"title":0.1636},{"projW":13.788,"projT":0.1509,"po":0.9468,"title":0.0836},{"projW":10.063,"projT":0.1407,"po":0.1533,"title":0.0569},{"projW":12.5291,"projT":1.0879,"po":0.9523,"title":0.3354},{"projW":6.9978,"projT":0.1207,"po":0.0006,"title":0.0001},{"projW":0.1668,"projT":0.0249,"po":0,"title":0},{"projW":9.3681,"projT":0.1479,"po":0.0361,"title":0.0118},{"projW":9.3656,"projT":0.1557,"po":0.0928,"title":0.0307},{"projW":5.888,"projT":0.1367,"po":0.0001,"title":0.0001},{"projW":8.6607,"projT":1.1487,"po":0.0492,"title":0.0166}]},{"asOf":13,"model":"v5 · v4 plus week-to-week strength drift in season simulations","runs":10000,"ranOn":"2026-11-01","teams":[{"projW":10.7567,"projT":0.1141,"po":0.4722,"title":0.1465},{"projW":13.9694,"projT":0.1339,"po":0.9928,"title":0.2352},{"projW":10.4741,"projT":0.1423,"po":0.3245,"title":0.0894},{"projW":13.9909,"projT":0.1392,"po":0.9751,"title":0.0711},{"projW":9.5989,"projT":0.1005,"po":0.0991,"title":0.0402},{"projW":12.5776,"projT":1.0846,"po":0.9713,"title":0.3547},{"projW":6.7689,"projT":0.1078,"po":0,"title":0},{"projW":0.1345,"projT":0.0204,"po":0,"title":0},{"projW":9.9055,"projT":0.113,"po":0.0958,"title":0.0391},{"projW":8.4109,"projT":0.113,"po":0.02,"title":0.0063},{"projW":7.2192,"projT":0.132,"po":0.0023,"title":0.0008},{"projW":8.5201,"projT":1.1458,"po":0.0469,"title":0.0167}]},{"asOf":14,"model":"v5 · v4 plus week-to-week strength drift in season simulations","runs":10000,"ranOn":"2026-11-01","teams":[{"projW":10.5941,"projT":0.1156,"po":0.3885,"title":0.1298},{"projW":14.7521,"projT":0.1016,"po":1,"title":0.2309},{"projW":11.157,"projT":0.11,"po":0.5294,"title":0.1267},{"projW":13.1667,"projT":0.1173,"po":0.9245,"title":0.0618},{"projW":9.7104,"projT":0.0922,"po":0.0862,"title":0.0286},{"projW":12.3698,"projT":1.055,"po":0.9763,"title":0.3907},{"projW":6.2433,"projT":0.0853,"po":0,"title":0},{"projW":0.1043,"projT":0.0149,"po":0,"title":0},{"projW":9.4812,"projT":0.0885,"po":0.0191,"title":0.0069},{"projW":7.9074,"projT":0.083,"po":0.0035,"title":0.0008},{"projW":7.8988,"projT":0.1155,"po":0.0018,"title":0.0004},{"projW":9.066,"projT":1.1189,"po":0.0707,"title":0.0234}]},{"asOf":15,"model":"v5 · v4 plus week-to-week strength drift in season simulations","runs":10000,"ranOn":"2026-11-01","teams":[{"projW":10.1918,"projT":0.0927,"po":0.1791,"title":0.0646},{"projW":14.7287,"projT":0.1,"po":1,"title":0.232},{"projW":11.638,"projT":0.0851,"po":0.7649,"title":0.2163},{"projW":13.1212,"projT":0.0956,"po":0.945,"title":0.0865},{"projW":10.0092,"projT":0.0741,"po":0.0862,"title":0.0304},{"projW":12.6884,"projT":1.0312,"po":0.9986,"title":0.3595},{"projW":6.041,"projT":0.0621,"po":0,"title":0},{"projW":0.0516,"projT":0.0053,"po":0,"title":0},{"projW":9.6265,"projT":0.0766,"po":0.0132,"title":0.0064},{"projW":7.7289,"projT":0.0667,"po":0.0002,"title":0.0001},{"projW":8.3574,"projT":0.0797,"po":0.0021,"title":0.0004},{"projW":8.3887,"projT":1.0881,"po":0.0107,"title":0.0038}]},{"asOf":16,"model":"v5 · v4 plus week-to-week strength drift in season simulations","runs":10000,"ranOn":"2026-11-01","teams":[{"projW":9.1897,"projT":0.0734,"po":0.049,"title":0.0121},{"projW":14.5791,"projT":0.0745,"po":1,"title":0.2292},{"projW":10.6547,"projT":0.0732,"po":0.4826,"title":0.1302},{"projW":14.0631,"projT":0.0669,"po":1,"title":0.1041},{"projW":10.4365,"projT":0.0449,"po":0.4375,"title":0.1374},{"projW":12.608,"projT":1.0376,"po":0.9991,"title":0.3791},{"projW":6.4868,"projT":0.0339,"po":0,"title":0},{"projW":0.0281,"projT":0.0053,"po":0,"title":0},{"projW":8.9159,"projT":0.0489,"po":0.0008,"title":0.0002},{"projW":8.6357,"projT":0.0515,"po":0.0038,"title":0.0009},{"projW":9.5191,"projT":0.0646,"po":0.0246,"title":0.0056},{"projW":7.5684,"projT":1.0551,"po":0.0026,"title":0.0012}]},{"asOf":17,"model":"v5 · v4 plus week-to-week strength drift in season simulations","runs":10000,"ranOn":"2026-11-01","teams":[{"projW":8.9234,"projT":0.0532,"po":0.0098,"title":0.0022},{"projW":15.1979,"projT":0.0462,"po":1,"title":0.2174},{"projW":9.9895,"projT":1.0522,"po":0.4387,"title":0.1363},{"projW":14.1582,"projT":0.0535,"po":1,"title":0.092},{"projW":10.5153,"projT":0.0393,"po":0.5106,"title":0.1449},{"projW":12.7464,"projT":1.024,"po":1,"title":0.3989},{"projW":6.4298,"projT":0.0284,"po":0,"title":0},{"projW":0.0176,"projT":0.0034,"po":0,"title":0},{"projW":8.3361,"projT":0.0274,"po":0,"title":0},{"projW":8.4559,"projT":1.0336,"po":0.0021,"title":0.0002},{"projW":9.6976,"projT":0.0426,"po":0.0388,"title":0.0081},{"projW":7.3137,"projT":1.0334,"po":0,"title":0}]},{"asOf":18,"model":"v5 · v4 plus week-to-week strength drift in season simulations","runs":10000,"ranOn":"2026-11-01","teams":[{"projW":9.3012,"projT":0.0288,"po":0.105,"title":0.0195},{"projW":14.3109,"projT":0.0268,"po":1,"title":0.1668},{"projW":9.6623,"projT":1.0268,"po":0.6865,"title":0.2393},{"projW":14.67,"projT":0.0288,"po":1,"title":0.0897},{"projW":9.8513,"projT":0.0144,"po":0.1914,"title":0.0419},{"projW":12.9421,"projT":1.0055,"po":1,"title":0.4407},{"projW":6.4239,"projT":0.0261,"po":0,"title":0},{"projW":0.0016,"projT":0.0003,"po":0,"title":0},{"projW":8.9981,"projT":0.0003,"po":0,"title":0},{"projW":8.0524,"projT":1.0055,"po":0,"title":0},{"projW":9.55,"projT":0.0261,"po":0.0171,"title":0.0021},{"projW":8.1343,"projT":1.0144,"po":0,"title":0}]},{"asOf":19,"model":"v5 · v4 plus week-to-week strength drift in season simulations","runs":10000,"ranOn":"2026-11-01","teams":[{"projW":10,"projT":0,"po":0,"title":0},{"projW":14,"projT":0,"po":1,"title":0.1768},{"projW":10,"projT":1,"po":1,"title":0.2499},{"projW":14,"projT":0,"po":1,"title":0.0722},{"projW":10,"projT":0,"po":0,"title":0},{"projW":13,"projT":1,"po":1,"title":0.5011},{"projW":6,"projT":1,"po":0,"title":0},{"projW":0,"projT":0,"po":0,"title":0},{"projW":9,"projT":0,"po":0,"title":0},{"projW":8,"projT":1,"po":0,"title":0},{"projW":9,"projT":1,"po":0,"title":0},{"projW":8,"projT":1,"po":0,"title":0}]}]}]}</script>
+<script>
+(() => {
+const DATA = JSON.parse(document.getElementById('data').textContent);
+/*ENGINE*/
+const CATS = ['FG%','FT%','3PM','REB','AST','STL','BLK','TO','PTS'];
+const NC = CATS.length;
+const SGN = CATS.map(c => c === 'TO' ? -1 : 1);
+const COUNT = CATS.map(c => c !== 'FG%' && c !== 'FT%');
+// Week-to-week noise (SIG) and true spread between teams (TAU), as a share of the league's weekly average.
+// Estimated from 13 weeks of last season's data.
+const SIG = [.045,.048,.18,.151,.155,.194,.279,.176,.138];
+const TAU = [.017,.018,.158,.168,.17,.155,.244,.17,.152];
+const DECAY = 0.8;
+const USAGE_PRIOR = 1;
+// Team strength drifts week to week (trades, injuries, slumps). The 0.8 recency weight implies how much:
+// a steady-state weight of 1 - K on old data matches drift variance = K^2 / (1 - K) times weekly noise.
+const DRIFT = Math.sqrt((1 - DECAY) ** 2 / DECAY);   // weeks of league-average usage blended into each team's usage rate
+const SQ2 = Math.SQRT2;
+const MODEL_VERSION = 'v5 · v4 plus week-to-week strength drift in season simulations';
+const avg = a => a.reduce((x,y)=>x+y,0)/a.length;
+
+function rng(seed){ return () => { seed |= 0; seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+function phi(x){ const t = 1/(1+0.2316419*Math.abs(x)); const d = 0.3989423*Math.exp(-x*x/2); const p = d*t*(0.3193815+t*(-0.3565638+t*(1.781478+t*(-1.821256+t*1.330274)))); return x > 0 ? 1-p : p; }
+const pdf = x => 0.3989423*Math.exp(-x*x/2);
+function gauss(r){ let u = 0; while (!u) u = r(); return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*r()); }
+
+function catVal(s, i){
+  const c = CATS[i];
+  if (c === 'FG%' && s.FGA) return s.FGM/s.FGA;
+  if (c === 'FT%' && s.FTA) return s.FTM/s.FTA;
+  return s[c];
+}
+
+// ---------- data prep ----------
+function prep(season){
+  const T = season.teams.length;
+  const weeks = {};
+  season.matchups.forEach(m => (weeks[m.week] ||= []).push(m));
+  let lastFinal = 0;
+  while (weeks[lastFinal+1] && weeks[lastFinal+1].every(m => m.sa && m.final)) lastFinal++;
+  const live = weeks[lastFinal+1] && weeks[lastFinal+1].some(m => m.sa) ? lastFinal+1 : null;
+  // Games per team per week: actually played for finished weeks; for future weeks, scheduled games for healthy
+  // players (injured players back on their expected return date) plus a 75%-strength streamer when the IR spot is open.
+  // Without it, every team counts as 1.
+  // played: games actually played (finished weeks), used to measure strength.
+  // games: the projection made before each week started, used for every forecast, so past odds never peek ahead.
+  const played = (t, w) => season.games && season.games[t] && season.games[t][w-1] ? season.games[t][w-1] : 1;
+  const games = (t, w) => season.gamesPlanned && season.gamesPlanned[t] && season.gamesPlanned[t][w-1] ? season.gamesPlanned[t][w-1] : played(t, w);
+  const gbar = w => avg([...Array(T).keys()].map(t => games(t, w)));
+  const vals = {}, lmean = {}, obs = {}, results = {};
+  for (let w = 1; w <= lastFinal; w++) {
+    const v = Array(T).fill(null);
+    weeks[w].forEach(m => { v[m.a] = CATS.map((_,i)=>catVal(m.sa,i)); v[m.b] = CATS.map((_,i)=>catVal(m.sb,i)); });
+    vals[w] = v;
+    // per-game rate for counting stats, raw value for percentages
+    const rate = v.map((x, t) => x && x.map((y, i) => COUNT[i] ? y / played(t, w) : y));
+    lmean[w] = CATS.map((_,i) => avg(rate.filter(Boolean).map(x => x[i])));
+    obs[w] = rate.map(x => x && x.map((y, i) => y / lmean[w][i]));
+    results[w] = weeks[w].map(m => scoreMatch(m.a, m.b, v[m.a], v[m.b]));
+  }
+  // typical per-game (counting) or raw (percent) league value; multiply by games for a week's total
+  const typical = CATS.map((_,i) => lastFinal ? avg(Object.values(lmean).map(x => x[i])) : null);
+  const gTypical = lastFinal ? avg([...Array(lastFinal).keys()].map(k => gbar(k+1))) : 1;
+  return { season, T, weeks, lastFinal, live, vals, lmean, obs, results, typical, games, played, gbar, gTypical, cache: {} };
+}
+function scoreMatch(a, b, va, vb){
+  let ca = 0, cb = 0; const cat = [];
+  for (let i = 0; i < NC; i++) {
+    const d = (va[i] - vb[i]) * SGN[i];
+    const r = Math.abs(d) < 1e-9 ? 0 : (d > 0 ? 1 : -1);
+    cat.push(r); if (r > 0) ca++; else if (r < 0) cb++;
+  }
+  return { a, b, ca, cb, cat, res: ca > cb ? 'A' : cb > ca ? 'B' : 'T' };
+}
+
+// ---------- the model ----------
+// A team's strength in a category = its per-game rate divided by the league's per-game average that week
+// (percentages compare directly). Recent weeks count more (0.8 per week of age). Estimates are pulled toward
+// average (1.0) in proportion to how noisy the category is relative to how much teams truly differ.
+function estimate(P, asOf){
+  if (P.cache['e'+asOf]) return P.cache['e'+asOf];
+  const mu = [], se = [];
+  for (let t = 0; t < P.T; t++) {
+    mu.push([]); se.push([]);
+    for (let i = 0; i < NC; i++) {
+      let sw = 0, swx = 0;
+      for (let w = 1; w <= asOf; w++) {
+        const o = P.obs[w][t]; if (!o) continue;
+        const wt = Math.pow(DECAY, asOf - w);
+        sw += wt; swx += wt * o[i];
+      }
+      const prec = 1/(TAU[i]*TAU[i]) + sw/(SIG[i]*SIG[i]);
+      mu[t].push((1/(TAU[i]*TAU[i]) + swx/(SIG[i]*SIG[i])) / prec);
+      se[t].push(Math.sqrt(1/prec));
+    }
+  }
+  // Usage rate: the share of its scheduled games a team actually gets into the lineup, against the league,
+  // weighted toward recent weeks and pulled toward average. Managers who stream and fill lineups keep doing it.
+  const usage = [...Array(P.T).keys()].map(t => {
+    let s = USAGE_PRIOR, sw = USAGE_PRIOR;
+    for (let w = 1; w <= asOf; w++) {
+      const lg = avg([...Array(P.T).keys()].map(u => P.played(u, w) / P.games(u, w)));
+      const wt = Math.pow(DECAY, asOf - w);
+      s += wt * (P.played(t, w) / P.games(t, w)) / lg; sw += wt;
+    }
+    return s / sw;
+  });
+  return (P.cache['e'+asOf] = { mu, se, usage });
+}
+// Games factor: a team's expected games (usage rate × scheduled games) relative to the league that week.
+// w = null means a typical week.
+const gfac = (P, E, t, w, i) => {
+  if (!COUNT[i] || w == null || w > P.season.regWeeks) return 1;
+  const lg = avg([...Array(P.T).keys()].map(u => E.usage[u] * P.games(u, w)));
+  return E.usage[t] * P.games(t, w) / lg;
+};
+// A projected weekly total (or percentage) for display.
+function projVal(P, E, t, i, w){
+  if (P.typical[i] == null) return null;
+  if (!COUNT[i]) return E.mu[t][i] * P.typical[i];
+  const g = ((w == null || w > P.season.regWeeks) ? P.gTypical : P.games(t, w)) * E.usage[t];
+  return E.mu[t][i] * P.typical[i] * g;
+}
+// Chance of a tie in a counting category: density of the difference at zero, for a one-unit gap.
+function tieProb(P, i, z, sd, w, weeksLen = 1){
+  if (!COUNT[i] || P.typical[i] == null) return 0;
+  const g = (w == null || w > P.season.regWeeks) ? P.gTypical : P.gbar(w);
+  const units = sd * P.typical[i] * g * weeksLen;
+  return Math.min(.2, pdf(z) / units);
+}
+function catOdds(P, E, a, b, w){
+  return CATS.map((_, i) => {
+    const fa = gfac(P, E, a, w, i), fb = gfac(P, E, b, w, i);
+    const sd = Math.sqrt(2*SIG[i]*SIG[i] + (E.se[a][i]*fa)**2 + (E.se[b][i]*fb)**2);
+    const z = SGN[i] * (E.mu[a][i]*fa - E.mu[b][i]*fb) / sd;
+    const pc = phi(z), pt = tieProb(P, i, z, sd, w);
+    const pw = Math.max(0, pc - pt/2), pl = Math.max(0, 1 - pc - pt/2);
+    return [pw, 1 - pw - pl, pl];
+  });
+}
+function outcome(odds){ // win / tie / loss of the week from per-category [win, tie, loss]
+  let dp = new Map([[0, 1]]);
+  odds.forEach(([pw, pt, pl]) => {
+    const n = new Map();
+    dp.forEach((v, k) => { n.set(k+1, (n.get(k+1)||0) + v*pw); n.set(k, (n.get(k)||0) + v*pt); n.set(k-1, (n.get(k-1)||0) + v*pl); });
+    dp = n;
+  });
+  let win = 0, tie = 0, loss = 0; dp.forEach((v, k) => { if (k > 0) win += v; else if (k < 0) loss += v; else tie += v; });
+  return { win, tie, loss };
+}
+function matchupProb(P, E, a, b, w){
+  const odds = catOdds(P, E, a, b, w), o = outcome(odds);
+  return { odds, ps: odds.map(x => x[0] + x[1]/2), p: o.win, tie: o.tie, q: o.loss,
+    exp: odds.reduce((s,x)=>s+x[0],0), expB: odds.reduce((s,x)=>s+x[2],0) };
+}
+
+function simulate(P, asOf, N, seed, withDist){
+  const T = P.T, reg = P.season.regWeeks, E = estimate(P, asOf), r = rng(seed);
+  const baseW = Array(T).fill(0), baseL = Array(T).fill(0), baseT = Array(T).fill(0), baseC = Array(T).fill(0);
+  for (let w = 1; w <= asOf; w++) P.results[w].forEach(m => {
+    baseC[m.a] += m.ca; baseC[m.b] += m.cb;
+    if (m.res === 'A') { baseW[m.a]++; baseL[m.b]++; } else if (m.res === 'B') { baseW[m.b]++; baseL[m.a]++; } else { baseT[m.a]++; baseT[m.b]++; }
+  });
+  const rem = [];
+  for (let w = asOf+1; w <= reg; w++) (P.weeks[w] || []).forEach(m => rem.push({ w, a: m.a, b: m.b,
+    fa: CATS.map((_, i) => gfac(P, E, m.a, w, i)), fb: CATS.map((_, i) => gfac(P, E, m.b, w, i)),
+    tu: CATS.map((_, i) => COUNT[i] && P.typical[i] != null ? SQ2*SIG[i]*P.typical[i]*P.gbar(w) : 0) }));
+  const sumW = Array(T).fill(0), sumT = Array(T).fill(0), po = Array(T).fill(0), title = Array(T).fill(0), seed1 = Array(T).fill(0);
+  const dist = Array.from({length:T}, () => Array.from({length: reg+1}, () => [0, 0]));
+  const s = Array.from({length:T}, () => Array(NC).fill(0));
+  const W = Array(T), Ti = Array(T), C = Array(T), order = [...Array(T).keys()];
+  const nPO = P.season.playoffTeams;
+  const catResult = (x, tu) => { // x: standardized edge for A; returns 1 A, 0 tie, -1 B
+    const pc = phi(x), pt = tu ? Math.min(.2, pdf(x) / tu) : 0, u = r();
+    return u < pc - pt/2 ? 1 : u < pc + pt/2 ? 0 : -1;
+  };
+  for (let n = 0; n < N; n++) {
+    for (let t = 0; t < T; t++) { for (let i = 0; i < NC; i++) s[t][i] = E.mu[t][i] + E.se[t][i]*gauss(r); W[t] = baseW[t]; Ti[t] = baseT[t]; C[t] = baseC[t]; }
+    let cw = asOf;
+    const drift = steps => { const k = DRIFT * Math.sqrt(steps); for (let t = 0; t < T; t++) for (let i = 0; i < NC; i++) s[t][i] += k * SIG[i] * gauss(r); };
+    for (const m of rem) {
+      if (m.w !== cw) { drift(m.w - cw); cw = m.w; }
+      let ca = 0, cb = 0;
+      for (let i = 0; i < NC; i++) {
+        const k = catResult(SGN[i]*(s[m.a][i]*m.fa[i] - s[m.b][i]*m.fb[i])/(SQ2*SIG[i]), m.tu[i]);
+        if (k > 0) ca++; else if (k < 0) cb++;
+      }
+      if (ca > cb) W[m.a]++; else if (cb > ca) W[m.b]++; else { Ti[m.a]++; Ti[m.b]++; }
+      C[m.a] += ca; C[m.b] += cb;
+    }
+    const tb = order.map(() => r());
+    order.sort((x, y) => (W[y] + Ti[y]/2) - (W[x] + Ti[x]/2) || C[y]-C[x] || tb[y]-tb[x]);
+    for (let t = 0; t < T; t++) { sumW[t] += W[t]; sumT[t] += Ti[t]; }
+    seed1[order[0]]++;
+    const made = new Set(order.slice(0, nPO));
+    made.forEach(t => po[t]++);
+    if (withDist) for (let t = 0; t < T; t++) { dist[t][W[t]][0]++; if (made.has(t)) dist[t][W[t]][1]++; }
+    // two-week playoff rounds: 1v4, 2v3, final. The higher seed advances on a tie.
+    const play = (a, b) => {
+      let ca = 0, cb = 0;
+      for (let i = 0; i < NC; i++) {
+        const tu = COUNT[i] && P.typical[i] != null ? SIG[i]*P.typical[i]*P.gTypical*2 : 0;
+        const k = catResult(SGN[i]*(s[a][i]-s[b][i])/SIG[i], tu);
+        if (k > 0) ca++; else if (k < 0) cb++;
+      }
+      return cb > ca ? b : a;
+    };
+    drift(reg + 1.5 - cw);   // to the middle of the two-week semifinal
+    const f1 = play(order[0], order[3]), f2 = play(order[1], order[2]);
+    drift(2);
+    title[play(f1, f2)]++;
+  }
+  return P.season.teams.map((name, t) => ({ t, name, w: baseW[t], l: baseL[t], ti: baseT[t],
+    projW: sumW[t]/N, projT: sumT[t]/N, projL: reg - (sumW[t] + sumT[t])/N, po: po[t]/N, title: title[t]/N, seed1: seed1[t]/N,
+    ...(withDist ? { dist: dist[t] } : {}) }));
+}
+function backtest(P){
+  let n = 0, hit = 0, brier = 0, conf = 0, confHit = 0;
+  for (let w = 1; w < P.lastFinal; w++) {
+    const E = estimate(P, w);
+    P.results[w+1].forEach(m => {
+      if (m.res === 'T') return;
+      const pr = matchupProb(P, E, m.a, m.b, w+1), p = pr.p / (pr.p + pr.q), y = m.res === 'A' ? 1 : 0;
+      n++; brier += (p - y)**2;
+      if ((p >= .5) === (y === 1)) hit++;
+      if (Math.abs(p - .5) >= .2) { conf++; if ((p >= .5) === (y === 1)) confHit++; }
+    });
+  }
+  return { n, hit, brier: n ? brier/n : null, conf, confHit };
+}
+/*END ENGINE*/
+
+const $ = (s, r=document) => r.querySelector(s);
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const pct = (p, d=0) => (p*100).toFixed(d) + '%';
+
+// Forecasts are simulated once a week and frozen into the data, so every viewer sees the same numbers
+// and past weeks keep what the model said at the time.
+function history(P){
+  if (P.cache.hist) return P.cache.hist;
+  return (P.cache.hist = (P.season.snaps || []).map((snap, w) => {
+    const rec = P.season.teams.map(() => ({ w: 0, l: 0, ti: 0 }));
+    for (let k = 1; k <= w; k++) P.results[k].forEach(m => {
+      if (m.res === 'A') { rec[m.a].w++; rec[m.b].l++; } else if (m.res === 'B') { rec[m.b].w++; rec[m.a].l++; } else { rec[m.a].ti++; rec[m.b].ti++; }
+    });
+    return snap.teams.map((x, t) => ({ t, name: P.season.teams[t], ...rec[t], ...x, projL: P.season.regWeeks - x.projW - x.projT }));
+  }));
+}
+
+// ---------- state ----------
+const PREPS = DATA.seasons.map(prep);
+const state = { s: 0, view: 'standings', a: null, b: null, hl: null, open: null, week: null, tea: null };
+try { const saved = JSON.parse(localStorage.getItem('ninecat') || '{}'); Object.assign(state, { s: saved.s ?? 0, metric: saved.metric ?? 'projW' }); } catch (e) {}
+const save = () => { try { localStorage.setItem('ninecat', JSON.stringify({ s: state.s, metric: state.metric })); } catch (e) {} };
+const P = () => PREPS[state.s];
+
+function defaultFocus(){
+  const sim = history(P())[P().lastFinal];
+  const ranked = [...sim].sort((x,y) => y.projW - x.projW);
+  state.a = ranked[0].t; state.b = ranked[1].t;
+}
+function setSeason(i){ state.s = i; state.week = null; state.hl = null; state.open = null; state.tea = null; defaultFocus(); save(); render(); }
+
+
+// ---------- mascot ----------
+function playerSVG(){
+  const skin = '#f1c6a3', line = '#2a2416', orange = '#eb6834', blue = '#2a78d6', hair = '#f0c94a', hairDark = '#d9a92e';
+  return `<svg viewBox="0 0 124 168" aria-hidden="true">
+    <ellipse class="shadow" cx="96" cy="161" rx="11" ry="3" fill="#000" opacity=".3"/>
+    <ellipse cx="56" cy="161" rx="26" ry="3.5" fill="#000" opacity=".12"/>
+    <g class="bob">
+      <path class="pony" d="M44 22 Q30 22 27 38 Q25 52 31 62 Q36 50 40 40 Q43 30 47 26 Z" fill="${hair}" stroke="${line}" stroke-width="2" stroke-linejoin="round"/>
+      <path d="M44 123 V146 M68 123 V146" stroke="${skin}" stroke-width="9" stroke-linecap="round"/>
+      <rect x="39" y="136" width="10" height="11" rx="2" fill="#fff" stroke="${line}" stroke-width="1.5"/><rect x="63" y="136" width="10" height="11" rx="2" fill="#fff" stroke="${line}" stroke-width="1.5"/>
+      <path d="M39 139 H49 M63 139 H73" stroke="${orange}" stroke-width="2"/>
+      <path d="M33 146 Q33 141 40 141 L50 142 Q53 148 51 152 L33 152 Z" fill="${line}"/><path d="M62 142 L72 141 Q79 141 79 146 L79 152 L61 152 Q59 148 62 142 Z" fill="${line}"/>
+      <path d="M33 151 H51 M61 151 H79" stroke="#fff" stroke-width="2"/>
+      <path d="M36 100 H76 L79 125 H59 L56 113 L53 125 H33 Z" fill="${blue}" stroke="${line}" stroke-width="2" stroke-linejoin="round"/>
+      <path d="M36 104 L34 124 M76 104 L78 124" stroke="#fff" stroke-width="2.5"/>
+      <path d="M39 64 Q32 82 33 97" stroke="${skin}" stroke-width="8" stroke-linecap="round" fill="none"/>
+      <rect x="29" y="90" width="9" height="5" rx="2" fill="#fff" stroke="${line}" stroke-width="1.2"/>
+      <path d="M40 60 Q56 54 72 60 L76 102 H36 Z" fill="${orange}" stroke="${line}" stroke-width="2.5" stroke-linejoin="round"/>
+      <path d="M47 58 L56 70 L65 58" fill="none" stroke="#fff" stroke-width="3" stroke-linejoin="round"/>
+      <text x="56" y="91" text-anchor="middle" font-family="Barlow Condensed, Arial Narrow, sans-serif" font-weight="700" font-size="14" letter-spacing=".5" fill="#fff">DUFF</text>
+      <rect x="52" y="50" width="8" height="9" fill="${skin}"/>
+      <circle cx="56" cy="38" r="18" fill="${skin}" stroke="${line}" stroke-width="2.5"/>
+      <path d="M37 38 Q36 18 56 18 Q76 18 75 37 Q71 27 62 25 Q54 31 40 33 Z" fill="${hair}" stroke="${line}" stroke-width="2" stroke-linejoin="round"/>
+      <path d="M44 23 Q52 20 60 22" stroke="${hairDark}" stroke-width="1.5" fill="none"/>
+      <path d="M38.5 31 Q56 23 74 31" stroke="#fff" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+      <path d="M41 36.5 H71" stroke="${line}" stroke-width="2.4" stroke-linecap="round"/>
+      <path d="M42 35.5 H54.5 L53.5 42.5 Q48 44.5 43 42.5 Z" fill="${line}"/><path d="M57.5 35.5 H70 L69 42.5 Q64 44.5 58.5 42.5 Z" fill="${line}"/>
+      <path d="M44.5 37.5 L47.5 37.5 M60 37.5 L63 37.5" stroke="#fff" stroke-width="1.2" stroke-linecap="round" opacity=".55"/>
+      <circle cx="46" cy="45" r="2.6" fill="#ef9a8a" opacity=".55"/><circle cx="66" cy="45" r="2.6" fill="#ef9a8a" opacity=".55"/>
+      <path d="M51 47 Q56 51 61 47" stroke="${line}" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+      <g class="arm"><path d="M72 64 Q82 78 90 96" stroke="${skin}" stroke-width="8" stroke-linecap="round" fill="none"/>
+      <rect x="84" y="88" width="9" height="5" rx="2" fill="#fff" stroke="${line}" stroke-width="1.2" transform="rotate(25 88 90)"/></g>
+    </g>
+    <g class="ball">
+      <circle cx="96" cy="148" r="10" fill="#e8742a" stroke="${line}" stroke-width="2"/>
+      <path d="M86 148 H106 M96 138 V158 M89 141 Q96 148 89 155 M103 141 Q96 148 103 155" stroke="${line}" stroke-width="1.3" fill="none"/>
+    </g>
+  </svg>`;
+}
+function fillMascot(slot){
+  if (slot.dataset.ready) return;
+  slot.dataset.ready = '1';
+  const kind = slot.dataset.mascot;
+  slot.innerHTML = `<span class="mascot">${playerSVG()}</span>`;
+}
+
+// ---------- masthead ----------
+function renderMast(){
+  const p = P(), s = p.season;
+  const bits = [`<span><b>${esc(s.label)}</b></span>`];
+  bits.push(`<span>Model through <b>Week ${p.lastFinal}</b> of ${s.regWeeks}</span>`);
+  if (p.live) bits.push(`<span>Week ${p.live} in progress</span>`);
+  if ((s.unofficial || []).includes(p.lastFinal)) bits.push(`<span>Week ${p.lastFinal} results are unofficial until ESPN closes the week</span>`);
+  if (s.id === DATA.seasons[0].id) bits.push(`<span>Updated ${esc(new Date(DATA.updated + 'T12:00:00').toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' }))}</span>`);
+  bits.push(`<span>Top ${s.playoffTeams} make the playoffs</span>`);
+  $('#meta').innerHTML = bits.join('');
+  $('#seasonSeg').innerHTML = DATA.seasons.map((x, i) => `<button type="button" aria-pressed="${i === state.s}" data-s="${i}">${esc(x.label.replace(' (backtest)', ''))}${i ? ' <span class="hide-sm">backtest</span>' : ''}</button>`).join('');
+  $('#seasonSeg').querySelectorAll('button').forEach(b => b.onclick = () => setSeason(+b.dataset.s));
+  document.querySelectorAll('nav.tabs a').forEach(a => a.setAttribute('aria-current', a.dataset.view === state.view ? 'page' : 'false'));
+  // How it works covers both seasons, so the season controls step aside there
+  $('#seasonSeg').hidden = $('#meta').hidden = state.view === 'model';
+  document.querySelectorAll('.mascot-slot').forEach(fillMascot);
+}
+
+// ---------- standings ----------
+const teamColor = t => `var(--t${t})`;
+function viewStandings(el){
+  const p = P(), hist = history(p), now = hist[p.lastFinal], prev = p.lastFinal ? hist[p.lastFinal-1] : null;
+  const byProj = arr => [...arr].sort((x,y) => y.projW - x.projW || y.title - x.title);
+  const rows = byProj(now);
+  const prevRank = {}; if (prev) byProj(prev).forEach((r, k) => prevRank[r.t] = k + 1);
+  const since = p.lastFinal > 1 ? `the forecast after week ${p.lastFinal - 1}` : 'the preseason forecast';
+  const nPO = p.season.playoffTeams;
+  const fmtRec = r => `${r.w}–${r.l}${r.ti ? '–' + r.ti : ''}`;
+  // Whole-number projected record. Future ties are rare (about one in 40 matchups), so they're split half and half
+  // into wins and losses; ties that already happened stay in the record.
+  const projRec = r => {
+    const extra = Math.max(0, r.projT - r.ti) / 2, reg = p.season.regWeeks;
+    const w = Math.round(r.projW + extra), l = reg - r.ti - w;
+    return `${w}–${l}${r.ti ? '–' + r.ti : ''}`;
+  };
+  el.innerHTML = `
+  <section class="section">
+    <div class="sec-head">
+      <div class="with-mascot"><span class="mascot-slot" data-mascot="stand"></span><div><div class="eyebrow">Projected final standings</div><h2>Who finishes on top</h2></div></div>
+      <p>The rest of the season was simulated 10,000 times, adjusted for how many games each team has scheduled. Projected wins include games already played. Click a team to see its full range of outcomes.</p>
+    </div>
+    <div class="panel tbl-wrap">
+      <table class="standings">
+        <thead><tr><th colspan="2" title="Projected finish, with places moved since ${since}">Rank</th><th>Team</th><th class="r">Record</th><th class="r">Proj. record</th><th class="r wrap" title="Change in projected wins since ${since}">Wins vs. last week</th><th class="r">Playoffs</th><th class="r">Title</th></tr></thead>
+        <tbody>${rows.map((r, k) => {
+          const pr = prev ? prev[r.t].projW : null, d = pr == null ? null : r.projW - pr;
+          const dcls = d == null || Math.abs(d) < .05 ? 'flat' : d > 0 ? 'up' : 'down';
+          const dtxt = d == null ? '—' : Math.abs(d) < .05 ? '±0.0' : (d > 0 ? '▲ ' : '▼ ') + Math.abs(d).toFixed(1);
+          const open = r.t === state.open;
+          return `<tr class="row${k === nPO-1 && !open ? ' cut' : ''}${r.t === state.hl ? ' sel' : ''}" tabindex="0" data-t="${r.t}" aria-expanded="${open}">
+            <td class="rank">${k+1}</td>
+            <td class="mv">${(() => { const m = prevRank[r.t] ? prevRank[r.t] - (k+1) : 0; return !prev ? '' : m > 0 ? `<span class="delta up" title="Up ${m} since ${since}">▲${m}</span>` : m < 0 ? `<span class="delta down" title="Down ${-m} since ${since}">▼${-m}</span>` : `<span class="delta flat" title="Same place as ${since}">–</span>`; })()}</td>
+            <td class="team"><span class="dot" style="background:${teamColor(r.t)}"></span>${esc(r.name)}<span class="caret" aria-hidden="true">${open ? '▾' : '▸'}</span></td>
+            <td class="r num">${fmtRec(r)}</td>
+            <td class="r num" title="Average across simulations: ${r.projW.toFixed(1)} wins, ${r.projL.toFixed(1)} losses, ${r.projT.toFixed(1)} ties">${projRec(r)}</td>
+            <td class="r"><span class="delta ${dcls}" title="Change in projected wins since ${since}">${dtxt}</span></td>
+            <td class="r"><div class="pbar"><span class="num">${pct(r.po)}</span><div class="track"><div class="fill" style="width:${r.po*100}%"></div></div></div></td>
+            <td class="r"><div class="pbar title"><span class="num">${pct(r.title)}</span><div class="track"><div class="fill" style="width:${r.title*100}%"></div></div></div></td>
+          </tr>${open ? `<tr class="detail${k === nPO-1 ? ' cut' : ''}"><td colspan="8"><div class="dist" id="dist"></div></td></tr>` : ''}`; }).join('')}</tbody>
+      </table>
+    </div>
+    <p class="note">Dashed line marks the playoff cut. Record is wins, losses and ties by weekly matchup, as ESPN counts them.</p>
+  </section>
+  <section class="section">
+    <div class="sec-head">
+      <div><div class="eyebrow">Model over time</div><h2>Projected wins, every team</h2></div>
+      <p>Where the model expected each team to finish after every week. Hover a line or name to pick it out; click one to keep it highlighted.</p>
+    </div>
+    <div class="panel chart-panel"><div class="chart tl" id="tlWins"></div></div>
+  </section>
+  <section class="section">
+    <div class="sec-head">
+      <div><div class="eyebrow">Model over time</div><h2>Playoff odds, every team</h2></div>
+      <p>Each team's chance of finishing in the top ${nPO}, after every week.</p>
+    </div>
+    <div class="panel chart-panel"><div class="chart tl" id="tlPO"></div></div>
+    <p class="note">"Pre" is the preseason starting point. Every team is rated league-average there, so the differences come only from how many games each team has scheduled. Each later point uses only results known at the end of that week, and is frozen once it's published.</p>
+  </section>`;
+  const lock = t => { state.hl = state.hl === t ? null : t; viewStandings(el); };
+  const toggle = t => { if (state.open === t) { state.open = null; state.hl = null; } else { state.open = t; state.hl = t; } viewStandings(el); };
+  el.querySelectorAll('tr.row').forEach(tr => {
+    tr.onclick = () => toggle(+tr.dataset.t);
+    tr.onkeydown = e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(+tr.dataset.t); } };
+  });
+  if (state.open != null && p.season.dist) drawDist($('#dist', el), p, state.open, now[state.open]);
+  drawTimeline($('#tlWins', el), hist, p, 'projW', lock);
+  drawTimeline($('#tlPO', el), hist, p, 'po', lock);
+}
+
+// Distribution of final win totals across all simulated seasons, split by whether the team made the playoffs.
+function drawDist(host, p, t, row){
+  const bins = p.season.dist[t], N = bins.reduce((s, b) => s + b[0], 0), reg = p.season.regWeeks;
+  const share = bins.map(b => b[0] / N), maxS = Math.max(...share);
+  let lo = bins.findIndex(b => b[0] > 0), hi = bins.length - 1 - [...bins].reverse().findIndex(b => b[0] > 0);
+  lo = Math.max(0, lo - 1); hi = Math.min(reg, hi + 1);
+  // 80% range and the win total where playoff odds pass 50%
+  let c = 0, p10 = null, p90 = null;
+  bins.forEach((b, w) => { c += b[0]; if (p10 == null && c >= N*.1) p10 = w; if (p90 == null && c >= N*.9) p90 = w; });
+  const need = bins.findIndex((b, w) => b[0] >= N*.002 && b[1] / b[0] >= .5);
+  const Wd = 640, H = 230, L = 40, R = 12, Tp = 14, B = 30;
+  const n = hi - lo + 1, bw = (Wd - L - R) / n;
+  const top = Math.ceil(maxS * 20) / 20 || .05;
+  const Y = v => Tp + (1 - v / top) * (H - Tp - B);
+  const ticks = []; for (let v = 0; v <= top + 1e-9; v += top > .2 ? .1 : .05) ticks.push(+v.toFixed(2));
+  let svg = `<svg viewBox="0 0 ${Wd} ${H}" role="img" aria-label="Simulated final win totals for ${esc(row.name)}">`;
+  svg += `<g class="grid">${ticks.map(v => `<line x1="${L}" x2="${Wd-R}" y1="${Y(v)}" y2="${Y(v)}"/>`).join('')}</g>`;
+  svg += `<g class="axis">${ticks.map(v => `<text x="${L-8}" y="${Y(v)+4}" text-anchor="end">${Math.round(v*100)}%</text>`).join('')}</g>`;
+  for (let w = lo; w <= hi; w++) {
+    const x = L + (w - lo) * bw + 3, wd = Math.max(2, bw - 6), b = bins[w];
+    const yAll = Y(b[0] / N), yMade = Y(b[1] / N), base = Y(0);
+    if (b[0]) {
+      if (b[1]) svg += `<rect x="${x}" y="${yMade}" width="${wd}" height="${Math.max(0, base - yMade)}" fill="var(--accent)" rx="2"/>`;
+      if (b[0] > b[1]) svg += `<rect x="${x}" y="${yAll}" width="${wd}" height="${Math.max(0, (b[1] ? yMade - 2 : base) - yAll)}" fill="var(--line-quiet)" rx="2"/>`;
+    }
+    svg += `<text x="${x + wd/2}" y="${H - 10}" text-anchor="middle">${w}</text>`;
+    svg += `<rect class="hitbar" data-w="${w}" x="${x - 3}" y="${Tp}" width="${bw}" height="${H - Tp - B}" fill="transparent"/>`;
+  }
+  svg += `</svg><div class="tip" hidden></div>`;
+  host.innerHTML = `<div class="dist-head">
+      <div><div class="eyebrow">${esc(row.name)} · 10,000 simulated seasons</div>
+      <p class="ink2">Averages <b>${row.projW.toFixed(1)} wins</b>. In 8 of 10 simulations it finishes with <b>${p10}–${p90} wins</b>.${need >= 0 ? ` Teams that reach <b>${need} wins</b> usually make the playoffs here.` : ''}</p></div>
+      <div class="legend"><span><i class="sw blk" style="background:var(--accent)"></i>Made playoffs (${pct(row.po)})</span><span><i class="sw blk" style="background:var(--line-quiet)"></i>Missed</span></div>
+    </div><div class="chart">${svg}</div><p class="note">Bars show the share of simulated seasons ending with each number of wins. Ties are counted separately, not as half-wins.</p>`;
+  const chart = host.querySelector('.chart'), tip = chart.querySelector('.tip'), svgEl = chart.querySelector('svg');
+  chart.querySelectorAll('.hitbar').forEach(h => {
+    const show = () => {
+      const w = +h.dataset.w, b = bins[w];
+      tip.innerHTML = `<div class="t">${w} wins</div><div class="rowt"><span>Share of seasons</span><span class="num">${pct(b[0]/N, 1)}</span></div><div class="rowt"><span>Made playoffs from here</span><span class="num">${b[0] ? pct(b[1]/b[0]) : '—'}</span></div>`;
+      tip.hidden = false;
+      const rect = svgEl.getBoundingClientRect(), hx = (+h.getAttribute('x') + bw/2) / Wd * rect.width, tw = tip.offsetWidth;
+      tip.style.left = (hx + 12 + tw > rect.width ? Math.max(0, hx - tw - 12) : hx + 12) + 'px'; tip.style.top = '0px';
+    };
+    h.addEventListener('pointerenter', show); h.addEventListener('pointerdown', show);
+    h.addEventListener('pointerleave', () => { tip.hidden = true; });
+  });
+}
+
+function drawTimeline(host, hist, p, m, lock){
+  const isPct = m !== 'projW';
+  const Wd = 780, H = 400, L = 40, R = 200, Tp = 16, B = 34;
+  const xs = hist.length - 1, T = p.season.teams.length;
+  const series = p.season.teams.map((_, t) => hist.map(h => h[t][m]));
+  let ymin, ymax;
+  if (isPct) { ymin = 0; ymax = 1; }
+  else { ymin = Math.floor(Math.min(...series.flat()) - .5); ymax = Math.ceil(Math.max(...series.flat()) + .5); }
+  const X = i => L + (xs ? i/xs : .5) * (Wd - L - R);
+  const Y = v => Tp + (1 - (v - ymin)/(ymax - ymin)) * (H - Tp - B);
+  const ticks = []; const step = isPct ? .25 : (ymax - ymin > 8 ? 2 : 1);
+  for (let v = ymin; v <= ymax + 1e-9; v += step) ticks.push(+v.toFixed(2));
+  const fmt = v => isPct ? Math.round(v*100) + '%' : v.toFixed(0);
+  const fmtV = v => isPct ? pct(v) : v.toFixed(1);
+  const xTickEvery = xs > 12 ? 2 : 1;
+  const path = arr => arr.map((v,i) => (i ? 'L' : 'M') + X(i).toFixed(1) + ' ' + Y(v).toFixed(1)).join('');
+  const short = s => s.length > 19 ? s.slice(0, 18) + '…' : s;
+  // End labels for every team, spread so none overlap
+  const GAP = 14, lo = Tp + 4, hi = H - B;
+  const lab = series.map((s, t) => ({ t, y: Y(s[xs]) })).sort((a, b) => a.y - b.y);
+  for (let k = 0; k < lab.length; k++) lab[k].ly = Math.max(lab[k].y, k ? lab[k-1].ly + GAP : lo);
+  const over = lab[lab.length-1].ly - hi;
+  if (over > 0) for (let k = lab.length - 1; k >= 0; k--) lab[k].ly = Math.min(lab[k].ly, k === lab.length-1 ? hi : lab[k+1].ly - GAP);
+  const ly = {}; lab.forEach(o => ly[o.t] = o.ly);
+
+  let svg = `<svg viewBox="0 0 ${Wd} ${H}" role="img" aria-label="${isPct ? 'Playoff odds' : 'Projected wins'} by week for every team">`;
+  svg += `<g class="grid">${ticks.map(v => `<line x1="${L}" x2="${Wd-R}" y1="${Y(v)}" y2="${Y(v)}"/>`).join('')}</g>`;
+  svg += `<g class="axis">${ticks.map(v => `<text x="${L-8}" y="${Y(v)+4}" text-anchor="end">${fmt(v)}</text>`).join('')}`;
+  for (let i = 0; i <= xs; i += xTickEvery) svg += `<text x="${X(i)}" y="${H-12}" text-anchor="middle">${i === 0 ? 'Pre' : 'W' + i}</text>`;
+  svg += `</g><line class="xh" x1="0" x2="0" y1="${Tp}" y2="${H-B}" stroke="var(--rule-strong)" stroke-width="1" visibility="hidden"/>`;
+  const order = [...Array(T).keys()].filter(t => t !== state.hl).concat(state.hl != null ? [state.hl] : []);
+  order.forEach(t => {
+    const c = teamColor(t), ex = X(xs), ey = Y(series[t][xs]);
+    svg += `<g class="team${t === state.hl ? ' on' : ''}" data-t="${t}">
+      <path class="ln" d="${path(series[t])}" fill="none" stroke="${c}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+      <circle cx="${ex}" cy="${ey}" r="3.5" fill="${c}" stroke="var(--surface)" stroke-width="1.5"/>
+      <path d="M${ex+4} ${ey} L${ex+14} ${ly[t]}" stroke="${c}" stroke-width="1" fill="none" opacity=".6"/>
+      <circle cx="${ex+20}" cy="${ly[t]}" r="4" fill="${c}"/>
+      <text class="lb" x="${ex+28}" y="${ly[t]+4}">${esc(short(p.season.teams[t]))} <tspan class="v">${fmtV(series[t][xs])}</tspan></text>
+      <path class="hitln" d="${path(series[t])}" fill="none" stroke="transparent" stroke-width="12"/>
+      <rect class="hitlb" x="${ex+14}" y="${ly[t]-8}" width="${R-16}" height="15" fill="transparent"/>
+    </g>`;
+  });
+  svg += `</svg><div class="tip" hidden></div>`;
+  host.innerHTML = svg;
+  host.classList.toggle('has-hl', state.hl != null);
+  const svgEl = host.querySelector('svg'), tip = host.querySelector('.tip'), xh = host.querySelector('.xh');
+  const groups = host.querySelectorAll('g.team');
+  const peek = t => { host.classList.toggle('has-hl', t != null || state.hl != null); groups.forEach(g => g.classList.toggle('on', +g.dataset.t === (t ?? state.hl))); };
+  groups.forEach(g => {
+    const t = +g.dataset.t;
+    g.querySelectorAll('.hitln,.hitlb').forEach(h => { h.addEventListener('pointerenter', () => peek(t)); h.addEventListener('pointerleave', () => peek(null)); h.addEventListener('click', () => lock(t)); });
+  });
+  svgEl.addEventListener('pointermove', e => {
+    const rect = svgEl.getBoundingClientRect(), sx = (e.clientX - rect.left) * Wd / rect.width;
+    if (sx < L - 10 || sx > Wd - R + 6) { tip.hidden = true; xh.setAttribute('visibility', 'hidden'); return; }
+    const i = Math.max(0, Math.min(xs, Math.round((sx - L) / ((Wd - L - R) / (xs || 1)))));
+    xh.setAttribute('x1', X(i)); xh.setAttribute('x2', X(i)); xh.setAttribute('visibility', 'visible');
+    const list = p.season.teams.map((n,t) => ({ n, t, v: series[t][i] })).sort((a,b) => b.v - a.v);
+    tip.innerHTML = `<div class="t">${i === 0 ? 'Preseason' : 'After week ' + i}</div>` + list.map(o => `<div class="rowt${o.t === state.hl ? ' hl' : ''}"><span><i class="dot" style="background:${teamColor(o.t)}"></i>${esc(short(o.n))}</span><span class="num">${fmtV(o.v)}</span></div>`).join('');
+    tip.hidden = false;
+    const hx = X(i) / Wd * rect.width, tw = tip.offsetWidth;
+    tip.style.left = (hx + 14 + tw > rect.width ? Math.max(0, hx - tw - 14) : hx + 14) + 'px';
+    tip.style.top = '8px';
+  });
+  svgEl.addEventListener('pointerleave', () => { tip.hidden = true; xh.setAttribute('visibility', 'hidden'); });
+}
+
+// ---------- matchups ----------
+function fmtCat(i, v){ const c = CATS[i]; if (c === 'FG%' || c === 'FT%') return v.toFixed(3).replace(/^0/, ''); return Math.round(v).toString(); }
+function viewMatchups(el){
+  const p = P(), reg = p.season.regWeeks;
+  if (state.week == null) state.week = p.live || Math.min(reg, p.lastFinal + 1);
+  const w = state.week;
+  const asOf = Math.min(w - 1, p.lastFinal);
+  const E = estimate(p, asOf);
+  const isFinal = w <= p.lastFinal, isLive = w === p.live;
+  const btns = [];
+  for (let k = 1; k <= reg; k++) btns.push(`<button type="button" class="${k <= p.lastFinal ? 'done' : ''}${k === p.live ? ' live' : ''}" aria-pressed="${k === w}" data-w="${k}" aria-label="Week ${k}">${k}</button>`);
+  const ms = p.weeks[w] || [];
+  let hits = 0, decided = 0;
+  const cards = ms.map(m => {
+    const pr = matchupProb(p, E, m.a, m.b, w);
+    const actual = isFinal ? p.results[w].find(r => r.a === m.a && r.b === m.b) : null;
+    const liveV = isLive && m.sa ? [CATS.map((_,i)=>catVal(m.sa,i)), CATS.map((_,i)=>catVal(m.sb,i))] : null;
+    const liveS = liveV ? scoreMatch(m.a, m.b, liveV[0], liveV[1]) : null;
+    let chip = `<span class="chip">Forecast</span>`;
+    if (actual) {
+      const fav = pr.p >= .5 ? 'A' : 'B';
+      if (actual.res !== 'T') { decided++; if (fav === actual.res) hits++; }
+      chip = actual.res === 'T' ? `<span class="chip">Tied ${actual.ca}–${actual.cb}</span>` : fav === actual.res ? `<span class="chip hit">Called it · ${Math.max(actual.ca,actual.cb)}–${Math.min(actual.ca,actual.cb)}</span>` : `<span class="chip miss">Upset · ${Math.max(actual.ca,actual.cb)}–${Math.min(actual.ca,actual.cb)}</span>`;
+    } else if (liveS) chip = `<span class="chip live">Live · ${liveS.ca}–${liveS.cb}${liveS.cat.filter(x=>!x).length ? '–' + liveS.cat.filter(x=>!x).length : ''}</span>`;
+    const shown = actual ? [p.vals[w][m.a], p.vals[w][m.b]] : liveV;
+    const catRows = CATS.map((c, i) => {
+      let va, vb, ca = '', cb = '';
+      if (shown) {
+        va = fmtCat(i, shown[0][i]); vb = fmtCat(i, shown[1][i]);
+        const d = (shown[0][i] - shown[1][i]) * SGN[i];
+        if (Math.abs(d) > 1e-9) { ca = d > 0 ? 'win' : 'lose'; cb = d > 0 ? 'lose' : 'win'; }
+      } else if (p.typical[i] != null) {
+        va = fmtCat(i, projVal(p, E, m.a, i, w)); vb = fmtCat(i, projVal(p, E, m.b, i, w));
+      } else { va = vb = '—'; }
+      return `<div class="c">${c}</div><div class="mini" title="${esc(p.season.teams[m.a])} ${pct(pr.ps[i])} to win ${c}"><i style="width:${pr.ps[i]*100}%"></i></div><div class="num va ${ca}">${va}</div><div class="num vb ${cb}">${vb}</div>`;
+    }).join('');
+    return `<article class="panel card fade">
+      <div class="vs"><div class="nm">${esc(p.season.teams[m.a])}</div><div></div><div class="nm b">${esc(p.season.teams[m.b])}</div>
+      <div class="pct pa num">${pct(pr.p)}</div><div></div><div class="pct pb num">${pct(pr.q)}</div></div>
+      <div class="splitbar" aria-hidden="true"><i class="a" style="width:${pr.p*100}%"></i>${pr.tie >= .005 ? `<i class="t" style="width:${pr.tie*100}%"></i>` : ''}<i class="b" style="width:${pr.q*100}%"></i></div>
+      <div class="cardmeta"><span>Projected <span class="num">${pr.exp.toFixed(1)}–${pr.expB.toFixed(1)}</span>${pr.tie >= .005 ? ` · tie ${pct(pr.tie)}` : ''}${p.season.games && w <= p.season.regWeeks ? ` · games <span class="num">${p.games(m.a, w)}–${p.games(m.b, w)}</span>` : ''}</span>${chip}</div>
+      <div class="cats"><div class="cats-head">Cat</div><div class="cats-head">Chance by category</div><div class="cats-head">${shown ? (actual ? 'Final' : 'Live') : 'Proj.'}</div><div class="cats-head" style="text-align:right">&nbsp;</div>${catRows}</div>
+    </article>`;
+  }).join('');
+  const desc = isFinal ? `Week ${w} is final. Odds shown are what the model said going in, using results through week ${asOf}.`
+    : isLive ? `Week ${w} is in progress. Odds were set before the week began; live totals update when the data does.`
+    : `Forecast for week ${w}, using results through week ${p.lastFinal}. Projected totals use each team's scheduled games that week.`;
+  el.innerHTML = `<section class="section">
+    <div class="sec-head"><div class="with-mascot"><span class="mascot-slot" data-mascot="stand"></span><div><div class="eyebrow">Weekly matchups</div><h2>Week ${w}</h2></div></div><p>${desc}${isFinal && decided ? ` The model picked <b>${hits} of ${decided}</b> correctly this week.` : ''}</p></div>
+    <div class="weekbar" role="group" aria-label="Week">${btns.join('')}</div>
+    <div class="cards">${cards}</div>
+    <p class="note">Bars show each team's chance to win that category, blue for the team on the left. A team needs 5 of 9 categories to win the week. Turnovers count in reverse.</p>
+  </section>`;
+  el.querySelectorAll('.weekbar button').forEach(b => b.onclick = () => { state.week = +b.dataset.w; viewMatchups(el); });
+  const cur = el.querySelector('.weekbar button[aria-pressed="true"]'); if (cur) cur.scrollIntoView({ block: 'nearest', inline: 'center' });
+}
+
+// ---------- teams ----------
+// Relative strength: where each team sits between the league's worst (0) and best (1) team in a category.
+function relative(E, T){
+  const score = [], rank = [], avgScore = [];
+  for (let i = 0; i < NC; i++) {
+    const v = [...Array(T).keys()].map(t => SGN[i] * E.mu[t][i]);
+    const lo = Math.min(...v), hi = Math.max(...v), span = hi - lo || 1;
+    v.forEach((x, t) => {
+      (score[t] ||= [])[i] = (x - lo) / span;
+      (rank[t] ||= [])[i] = 1 + v.filter(y => y > x + 1e-12).length;
+    });
+    avgScore[i] = (SGN[i] * 1 - lo) / span; // league average sits at strength 1.0
+  }
+  return { score, rank, avgScore };
+}
+const ord = n => n + (n % 100 >= 11 && n % 100 <= 13 ? 'th' : ['th','st','nd','rd'][n % 10] || 'th');
+function viewTeams(el){
+  const p = P(), E = estimate(p, p.lastFinal), names = p.season.teams, T = names.length;
+  const RS = relative(E, T);
+  const opts = sel => names.map((n,t) => `<option value="${t}"${t === sel ? ' selected' : ''}>${esc(n)}</option>`).join('');
+  const A = state.a, B = state.b;
+  const pr = matchupProb(p, E, A, B, null);
+  el.innerHTML = `<section class="section">
+    <div class="sec-head"><div class="with-mascot"><span class="mascot-slot" data-mascot="stand"></span><div><div class="eyebrow">Category strength</div><h2>Head to head, category by category</h2></div></div>
+      <p>Each point shows where a team ranks in that category against the whole league. The outer edge is the league's best team, the center is the worst. The dashed shape is league average. For turnovers, fewer is better.</p></div>
+    <div class="pickers">
+      <label><span class="dot a"></span><select id="pa" aria-label="Team A">${opts(A)}</select></label>
+      <span class="muted">vs</span>
+      <label><span class="dot b"></span><select id="pb" aria-label="Team B">${opts(B)}</select></label>
+    </div>
+    <div class="teamgrid">
+      <div class="panel chart-panel">
+        <div class="legend"><span><i class="sw" style="background:var(--team-a)"></i>${esc(names[A])}</span><span><i class="sw" style="background:var(--team-b)"></i>${esc(names[B])}</span><span><i class="sw dash"></i>League average</span></div>
+        <div class="chart" id="radar"></div>
+      </div>
+      <div class="panel tbl-wrap" style="padding:6px 12px 10px">
+        <table class="cmp">
+          <thead><tr><th>Cat</th><th class="ca" colspan="2">${esc(names[A].slice(0,14))}</th><th class="cb" colspan="2">${esc(names[B].slice(0,14))}</th><th>Edge</th></tr></thead>
+          <tbody>${CATS.map((c,i) => {
+            const pa = pr.ps[i];
+            const lead = pa >= .5 ? `<span class="ca">${pct(pa)}</span>` : `<span class="cb">${pct(1-pa)}</span>`;
+            const val = t => p.typical[i] != null ? fmtCat(i, projVal(p, E, t, i, null)) : '—';
+            return `<tr><td><b>${c}</b></td><td class="num">${val(A)}</td><td class="rk">${ord(RS.rank[A][i])}</td><td class="num">${val(B)}</td><td class="rk">${ord(RS.rank[B][i])}</td><td class="num">${lead}</td></tr>`;
+          }).join('')}
+          <tr><td><b>Matchup</b></td><td class="num ca" colspan="2">${pct(pr.p)}</td><td class="num cb" colspan="2">${pct(pr.q)}</td><td class="num">${pr.exp.toFixed(1)}–${pr.expB.toFixed(1)}</td></tr></tbody>
+        </table>
+        <p class="note" style="padding:6px 0 0">Projected totals for a typical week, with league rank out of ${T}. Edge is the chance the stronger side wins that category if these two met now.</p>
+      </div>
+    </div>
+  </section>
+  <section class="section">
+    <div class="sec-head"><div><div class="eyebrow">Whole league</div><h2>Category ranks</h2></div><p>Every team's rank in every category, 1 being the best in the league. Click a team to put it on the radar.</p></div>
+    <div class="panel tbl-wrap" style="padding:8px 12px">${heatmap(p, RS)}</div>
+  </section>`;
+  $('#pa', el).onchange = e => { state.a = +e.target.value; if (state.a === state.b) state.b = (state.a + 1) % T; viewTeams(el); };
+  $('#pb', el).onchange = e => { state.b = +e.target.value; if (state.a === state.b) state.a = (state.b + 1) % T; viewTeams(el); };
+  el.querySelectorAll('td.nm').forEach(td => td.onclick = () => { const t = +td.dataset.t; if (t !== state.a) { state.b = state.a; state.a = t; } viewTeams(el); window.scrollTo({ top: 0, behavior: 'smooth' }); });
+  drawRadar($('#radar', el), RS, A, B, T);
+}
+function heatColor(rank, T){
+  const mid = (T + 1) / 2, d = (mid - rank) / (mid - 1); const a = Math.min(1, Math.abs(d));
+  const pole = d >= 0 ? 'var(--div-pos)' : 'var(--div-neg)';
+  return { bg: `color-mix(in srgb, ${pole} ${Math.round(a*85)}%, var(--div-mid))`, fg: a > .6 ? '#ffffff' : 'var(--ink)' };
+}
+function heatmap(p, RS){
+  const T = p.season.teams.length;
+  const rows = p.season.teams.map((n, t) => ({ n, t, r: RS.rank[t], a: avg(RS.rank[t]) })).sort((x, y) => x.a - y.a);
+  return `<table class="heat"><thead><tr><th>Team</th>${CATS.map(c => `<th>${c}</th>`).join('')}<th>Avg</th></tr></thead><tbody>${rows.map(r =>
+    `<tr><td class="nm" data-t="${r.t}">${r.t === state.a ? '<span class="dot a"></span>' : r.t === state.b ? '<span class="dot b"></span>' : ''}${esc(r.n)}</td>${r.r.map(v => { const c = heatColor(v, T); return `<td><div class="cell" style="background:${c.bg};color:${c.fg}">${v}</div></td>`; }).join('')}<td><div class="cell avg">${r.a.toFixed(1)}</div></td></tr>`).join('')}</tbody></table>`;
+}
+function drawRadar(host, RS, A, B, T){
+  const S = 440, cx = S/2, cy = S/2, R = 150, IN = .12;
+  const ang = i => -Math.PI/2 + i * 2*Math.PI/NC;
+  const rad = s => IN + (1 - IN) * s; // keep the league's worst team off the exact center
+  const pt = (i, s) => [cx + Math.cos(ang(i)) * R * rad(s), cy + Math.sin(ang(i)) * R * rad(s)];
+  const poly = arr => arr.map((s, i) => pt(i, s).map(n => n.toFixed(1)).join(',')).join(' ');
+  let svg = `<svg viewBox="0 0 ${S} ${S}" role="img" aria-label="Relative category strength of two teams">`;
+  [0, 1/3, 2/3, 1].forEach(s => { svg += `<polygon points="${poly(CATS.map(() => s))}" fill="none" stroke="${s === 1 ? 'var(--rule-strong)' : 'var(--rule)'}" stroke-width="1"/>`; });
+  CATS.forEach((c, i) => { const [x0, y0] = pt(i, 0), [x, y] = pt(i, 1); svg += `<line x1="${x0}" y1="${y0}" x2="${x}" y2="${y}" stroke="var(--rule)"/>`; });
+  svg += `<polygon points="${poly(RS.avgScore)}" fill="none" stroke="var(--muted)" stroke-width="1.5" stroke-dasharray="4 4"/>`;
+  [[B, 'var(--team-b)', 'var(--team-b-wash)'], [A, 'var(--team-a)', 'var(--team-a-wash)']].forEach(([t, col, wash]) => {
+    svg += `<polygon points="${poly(RS.score[t])}" fill="${wash}" stroke="${col}" stroke-width="2.5" stroke-linejoin="round"/>`;
+    RS.score[t].forEach((s, i) => { const [x, y] = pt(i, s); svg += `<circle cx="${x}" cy="${y}" r="5" fill="${col}" stroke="var(--surface)" stroke-width="2"><title>${esc(P().season.teams[t])} · ${CATS[i]}: ${ord(RS.rank[t][i])} of ${T}</title></circle>`; });
+  });
+  CATS.forEach((c, i) => {
+    const [x, y] = pt(i, 1.16); const a = Math.cos(ang(i));
+    svg += `<text x="${x}" y="${y + 5}" text-anchor="${Math.abs(a) < .2 ? 'middle' : a > 0 ? 'start' : 'end'}" style="fill:var(--ink);font-family:var(--font-display);font-weight:600;font-size:15px;letter-spacing:.05em">${c}</text>`;
+  });
+  host.innerHTML = svg + '</svg>';
+}
+
+// ---------- DuffTea ----------
+// Each team's report, written from the model's numbers by fixed rules, so it refreshes with every weekly update.
+const CAT_NAME = { 'FG%': 'field goal %', 'FT%': 'free throw %', '3PM': 'threes', REB: 'rebounds', AST: 'assists', STL: 'steals', BLK: 'blocks', TO: 'turnovers', PTS: 'points' };
+const PRAISE = { 'FG%': 'Efficient shooting, nothing wasted.', 'FT%': 'Money at the line.', '3PM': 'It is raining threes.', REB: 'Owns the glass.',
+  AST: 'The ball moves.', STL: 'Pickpockets, all of them.', BLK: 'Rim protection for days.', TO: 'Takes care of the ball.', PTS: 'Puts up points.' };
+const ROAST = { 'FG%': 'Bricks are a building material, not a strategy.', 'FT%': 'Free throws have not been free.', '3PM': 'Allergic to the three-point line.',
+  REB: 'Boxing out appears to be optional.', AST: 'Somebody on this roster has to pass.', STL: 'Hands not quite quick enough.', BLK: 'The rim is wide open.',
+  TO: 'The ball is a hot potato.', PTS: 'Scoring is kind of the point.' };
+const FIX = { 'FG%': 'An efficient big off waivers helps fastest.', 'FT%': 'Swap out the worst free-throw shooter, or lean into punting it.',
+  '3PM': 'Threes are easy to stream: grab a shooter with a full schedule.', REB: 'One rebounding big moves this a lot.', AST: 'A pass-first guard is the quickest fix.',
+  STL: 'Steals are streamable from guards and wings.', BLK: 'One shot-blocking center can swing this alone.', TO: 'Usually the price of volume. Fine to live with.',
+  PTS: 'Volume scorers, and more games, both help.' };
+const ord2 = n => n + (n % 100 >= 11 && n % 100 <= 13 ? 'th' : ['th','st','nd','rd'][n % 10] || 'th');
+const fmtDay = iso => new Date(iso + 'T12:00:00').toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+
+function teaFor(p, t){
+  const T = p.T, w0 = p.lastFinal, E = estimate(p, w0), names = p.season.teams;
+  const hist = history(p), now = hist[w0], prev = w0 ? hist[w0 - 1] : null;
+  const me = now[t], trend = prev ? me.projW - prev[t].projW : 0;
+  // effective weekly strength: per-game rate × usage for counting stats
+  const eff = (u, i) => SGN[i] * E.mu[u][i] * (COUNT[i] ? E.usage[u] : 1);
+  const rank = CATS.map((_, i) => 1 + [...Array(T).keys()].filter(u => eff(u, i) > eff(t, i) + 1e-12).length);
+  // average chance to win each category against every other team, typical week
+  const vsAll = CATS.map((_, i) => avg([...Array(T).keys()].filter(u => u !== t).map(u => {
+    const fa = COUNT[i] ? E.usage[t] : 1, fb = COUNT[i] ? E.usage[u] : 1;
+    const sd = Math.sqrt(2*SIG[i]*SIG[i] + (E.se[t][i]*fa)**2 + (E.se[u][i]*fb)**2);
+    return phi(SGN[i] * (E.mu[t][i]*fa - E.mu[u][i]*fb) / sd);
+  })));
+  const byRank = CATS.map((c, i) => ({ c, i, r: rank[i], p: vsAll[i] })).sort((a, b) => a.r - b.r);
+  const ranked = [...now].sort((x, y) => y.projW - x.projW || y.title - x.title).map(x => x.t);
+  const place = ranked.indexOf(t) + 1;
+  const usageRank = 1 + [...Array(T).keys()].filter(u => E.usage[u] > E.usage[t] + 1e-9).length;
+  const reg = p.season.regWeeks, left = reg - w0;
+
+  // headline
+  const tier = me.po >= .7 ? 'contender' : me.po >= .4 ? 'mix' : me.po >= .15 ? 'bubble' : 'longshot';
+  const dir = trend >= 1 ? 'up' : trend <= -1 ? 'down' : 'flat';
+  const LINES = {
+    contender: { up: 'Main character energy. The rest of the league is watching you.', flat: 'Comfortably near the top. Don\'t get bored.', down: 'Still a contender, but last week left a mark.' },
+    mix: { up: 'Climbing. Keep this up and you\'re a real problem.', flat: 'Right in the thick of it. Every week matters.', down: 'Slipping into the pack. Time to tighten up.' },
+    bubble: { up: 'Pulse detected. The playoffs are back on the table.', flat: 'On the bubble. A couple of good weeks changes everything.', down: 'Drifting the wrong way. The window\'s still open, barely.' },
+    longshot: { up: 'Small signs of life. Long road, but it\'s a road.', flat: 'Long odds. Play spoiler and enjoy it.', down: 'Rough start. There\'s a lot of season left to make someone else miserable.' } };
+  const verdict = { contender: 'Contender', mix: 'In the mix', bubble: 'Bubble', longshot: 'Long shot' }[tier];
+
+  // doing right / doing wrong
+  const strong = byRank.filter(x => x.r <= 4).slice(0, 3), weak = byRank.filter(x => x.r >= T - 3).slice(-3).reverse();
+  const right = strong.map(x => `<b>${ord2(x.r)} in ${CAT_NAME[x.c]}.</b> ${PRAISE[x.c]}`);
+  const wrong = weak.map(x => `<b>${ord2(x.r)} in ${CAT_NAME[x.c]}.</b> ${ROAST[x.c]}`);
+  const lastPlayed = w0 ? p.played(t, w0) : null, lastSched = w0 ? p.games(t, w0) : null;
+  if (w0 && p.season.games) {
+    if (usageRank <= 3) right.push(`<b>${ord2(usageRank)} in the league at getting guys on the floor.</b> ${lastPlayed} of ${lastSched} scheduled games last week.`);
+    else if (usageRank >= T - 2) wrong.push(`<b>${ord2(usageRank)} at getting scheduled games into the lineup.</b> ${lastPlayed} of ${lastSched} last week. That's free stats on the bench.`);
+  }
+  if (!right.length) right.push(`Nothing in the top four, but nothing's a disaster either. Best category: <b>${CAT_NAME[byRank[0].c]}</b> (${ord2(byRank[0].r)}).`);
+  if (!wrong.length) wrong.push(`No category in the bottom three. Weakest spot: <b>${CAT_NAME[byRank[NC-1].c]}</b> (${ord2(byRank[NC-1].r)}).`);
+
+  // over the season
+  const season = [];
+  if (left > 0) {
+    const bins = p.season.dist && p.season.dist[t];
+    if (bins) {
+      const N = bins.reduce((s, b) => s + b[0], 0);
+      const need = bins.findIndex(b => b[0] >= N * .002 && b[1] / b[0] >= .5);
+      if (need >= 0) {
+        const more = Math.max(0, need - me.w);
+        season.push(more > left ? `Playoffs usually take about <b>${need} wins</b>. That's more than the weeks left, so ties and luck would have to break your way.`
+          : `Playoffs usually take about <b>${need} wins</b>. You need <b>${more} more in ${left} weeks</b>, so roughly ${more}–${left - more} the rest of the way.`);
+      }
+    }
+    const swing = CATS.map((c, i) => ({ c, i, p: vsAll[i] })).filter(x => x.c !== 'TO' && x.p > .3 && x.p < .55).sort((a, b) => Math.abs(a.p - .45) - Math.abs(b.p - .45))[0];
+    if (swing) season.push(`<b>Best place to gain: ${CAT_NAME[swing.c]}.</b> You win it ${pct(swing.p)} of the time against a typical opponent, close enough that a small upgrade flips matchups. ${FIX[swing.c]}`);
+    const punt = CATS.map((c, i) => ({ c, i, p: vsAll[i] })).filter(x => x.p < .25).sort((a, b) => a.p - b.p)[0];
+    if (punt) season.push(`<b>Consider punting ${CAT_NAME[punt.c]}.</b> You win it only ${pct(punt.p)} of the time. Trading it away for help elsewhere could be worth more than chasing it.`);
+    if (p.season.games && E.usage[t] < .98) {
+      const lg = avg([...Array(T).keys()].map(u => E.usage[u]));
+      const gain = Math.max(1, Math.round((lg - E.usage[t]) * (w0 ? p.games(t, Math.min(reg, w0 + 1)) : 40)));
+      season.push(`<b>Stream more.</b> Getting to league-average usage is worth about ${gain} extra game${gain === 1 ? '' : 's'} a week, every week.`);
+    }
+  } else season.push('Regular season\'s over. See you next year.');
+
+  // next week
+  const next = [];
+  const w = w0 + 1;
+  const m = w <= reg && (p.weeks[w] || []).find(x => x.a === t || x.b === t);
+  if (m) {
+    const opp = m.a === t ? m.b : m.a, pr = matchupProb(p, E, t, opp, w);
+    const mine = E.usage[t] * p.games(t, w), theirs = E.usage[opp] * p.games(opp, w);
+    next.push(`<b>Week ${w} vs. ${esc(names[opp])}.</b> ${pct(pr.p)} to win${pr.tie >= .01 ? `, ${pct(pr.tie)} to tie` : ''}. Projected ${pr.exp.toFixed(1)}–${pr.expB.toFixed(1)} in categories.`);
+    if (p.season.games) {
+      const d = Math.round(mine - theirs);
+      next.push(Math.abs(d) <= 1 ? `Games look even, about ${Math.round(mine)} each.`
+        : d > 0 ? `You should get about <b>${d} more games</b> in (${Math.round(mine)} to ${Math.round(theirs)}). Use them.`
+        : `They should get about <b>${-d} more games</b> in (${Math.round(theirs)} to ${Math.round(mine)}). Stream to close the gap.`);
+    }
+    const swing = pr.ps.map((x, i) => ({ c: CATS[i], x })).filter(o => Math.abs(o.x - .5) < .15).sort((a, b) => Math.abs(a.x - .5) - Math.abs(b.x - .5)).slice(0, 3);
+    if (swing.length) next.push(`<b>Coin flips:</b> ${swing.map(o => `${CAT_NAME[o.c]} (${pct(o.x)})`).join(', ')}. That's where the week is decided.`);
+    const locks = pr.ps.map((x, i) => ({ c: CATS[i], x })).filter(o => o.x >= .75).map(o => CAT_NAME[o.c]);
+    const gone = pr.ps.map((x, i) => ({ c: CATS[i], x })).filter(o => o.x <= .25).map(o => CAT_NAME[o.c]);
+    if (locks.length) next.push(`Likely yours: ${locks.join(', ')}.`);
+    if (gone.length) next.push(`Likely theirs: ${gone.join(', ')}. Don't chase these.`);
+    const inj = (p.season.injuries || []).filter(x => (x.team === t || x.team === opp) && (x.back === 'season' || x.back === 'unknown' || x.back > DATA.updated));
+    inj.forEach(x => next.push(`${x.team === t ? 'Your' : 'Their'} ${esc(x.name)}: ${x.back === 'season' ? 'out for the season' : x.back === 'unknown' ? 'out, no return date' : `expected back ${fmtDay(x.back)}`}.`));
+  } else next.push('No regular-season game next week.');
+
+  // plain summary line: projected record, movement since last week, best and worst category
+  const projWins = Math.round(me.projW + Math.max(0, me.projT - me.ti) / 2), projLoss = reg - me.ti - projWins;
+  const move = !prev ? '' : Math.abs(trend) < .3 ? ', about the same as last week' : `, ${trend > 0 ? 'up' : 'down'} ${Math.abs(trend).toFixed(1)} wins from last week`;
+  const summary = `Projected ${projWins}–${projLoss}${me.ti ? '–' + me.ti : ''}${move}. Strongest in ${CAT_NAME[byRank[0].c]}, weakest in ${CAT_NAME[byRank[NC-1].c]}.`;
+  return { me, place, verdict, tier, line: summary, trend, right, wrong, season, next };
+}
+
+function viewTea(el){
+  const p = P(), now = history(p)[p.lastFinal];
+  const order = [...now].sort((x, y) => y.projW - x.projW || y.title - x.title).map(x => x.t);
+  if (state.tea == null || state.tea >= p.T) state.tea = order[0];
+  const t = state.tea, tea = teaFor(p, t), me = tea.me;
+  const list = arr => `<ul>${arr.map(x => `<li>${x}</li>`).join('')}</ul>`;
+  el.innerHTML = `<section class="section">
+    <div class="sec-head"><div class="with-mascot"><span class="mascot-slot" data-mascot="stand"></span><div><div class="eyebrow">DuffTea · after week ${p.lastFinal}</div><h2>Spill it</h2></div></div>
+      <p>What each team is doing right, what it's doing wrong, and what to do about it. Written from DuffCast's numbers, so it changes every week.</p></div>
+    <div class="teapicks" role="group" aria-label="Team">${order.map(u => `<button type="button" aria-pressed="${u === t}" data-t="${u}"><i class="dot" style="background:${teamColor(u)}"></i>${esc(p.season.teams[u])}</button>`).join('')}</div>
+    <article class="panel teacard fade">
+      <header class="tea-head">
+        <div>
+          <div class="eyebrow">${ord2(tea.place)} projected · ${me.w}–${me.l}${me.ti ? '–' + me.ti : ''} so far</div>
+          <h3><i class="dot" style="background:${teamColor(t)}"></i>${esc(me.name)}</h3>
+          <p class="tea-line">${tea.line}</p>
+        </div>
+        <div class="tea-stats">
+          <span class="chip tier-${tea.tier}">${tea.verdict}</span>
+          <span><b class="num">${pct(me.po)}</b> playoffs</span>
+          <span><b class="num">${pct(me.title)}</b> title</span>
+        </div>
+      </header>
+      <div class="tea-grid">
+        <div><h4>Doing right</h4>${list(tea.right)}</div>
+        <div><h4>Doing wrong</h4>${list(tea.wrong)}</div>
+        <div><h4>Over the season</h4>${list(tea.season)}</div>
+        <div><h4>Next week</h4>${list(tea.next)}</div>
+      </div>
+    </article>
+    <p class="note">Category ranks combine how good each team's players are per game with how many games it gets into the lineup. All in good fun.</p>
+  </section>`;
+  el.querySelectorAll('.teapicks button').forEach(b => b.onclick = () => { state.tea = +b.dataset.t; viewTea(el); });
+}
+
+// ---------- model ----------
+function viewModel(el){
+  // Oliver.GPT (the 2025–26 spreadsheet) replayed on the same weeks: each week's picks use only earlier weeks,
+  // 85%-weighted raw averages, category-by-category, winner takes the matchup with 100% confidence.
+  const LEGACY = { n: 105, hit: 74, brier: 0.288 };
+  const bt = PREPS.map(pp => ({ pp, r: backtest(pp) }));
+  const last = bt.find(x => x.pp.season.id === '2026') || bt[bt.length - 1];
+  const cur = bt.find(x => x.pp.season.id === '2027');
+  const D = last.r;
+  el.innerHTML = `<section class="section">
+    <div class="sec-head"><div class="with-mascot"><span class="mascot-slot" data-mascot="stand"></span><div><div class="eyebrow">How it works</div><h2>Introducing DuffCast</h2></div></div></div>
+    <div class="prose">
+      <p>DuffCast is the new and improved Oliver.GPT. Both start from the same idea: look at each team's category totals, lean on recent weeks, and see who should win more categories. This page explains how the old model worked, how it did, and how DuffCast works, and how it performs when backtested against last season.</p>
+    </div>
+    <div class="panel tbl-wrap">
+      <table class="score">
+        <thead><tr><th>Last season, weeks 2–19</th><th>Oliver.GPT</th><th>DuffCast</th></tr></thead>
+        <tbody>
+          <tr><td>Matchups called correctly<span class="sub">Each week predicted using only earlier weeks</span></td><td class="num">${LEGACY.hit} of ${LEGACY.n} <span class="muted">(${pct(LEGACY.hit / LEGACY.n)})</span></td><td class="num">${D.hit} of ${D.n} <span class="muted">(${pct(D.hit / D.n)})</span></td></tr>
+          <tr><td>How sure it was<span class="sub">What each model said going into a matchup</span></td><td>Always 100%</td><td>A percentage for every matchup</td></tr>
+          <tr><td>When it was 70%+ sure<span class="sub">How often those confident calls came true</span></td><td class="muted">—</td><td class="num">${D.confHit} of ${D.conf} <span class="muted">(${pct(D.confHit / D.conf)})</span></td></tr>
+          <tr class="key"><td>Brier score<span class="sub">Lower is better. A coin flip scores 0.250.</span></td><td class="num bad">${LEGACY.brier.toFixed(3)}</td><td class="num good">${D.brier.toFixed(3)}</td></tr>
+          ${cur && cur.r.n ? `<tr><td>This season so far<span class="sub">DuffCast only</span></td><td class="muted">—</td><td class="num">${cur.r.hit} of ${cur.r.n} · Brier ${cur.r.brier.toFixed(3)}</td></tr>` : ''}
+        </tbody>
+      </table>
+    </div>
+    <div class="prose">
+      <p><b>What the scorecard shows.</b> I replayed all of last season from ESPN, predicting each week using only the weeks before it. DuffCast called 77 matchups to the old sheet's 74, which is close, and the sheet was decent at picking favorites. The bigger difference is the Brier score, which measures how far a stated chance was from what actually happened. Saying 100% and being wrong costs a full point, while saying 60% and being wrong costs 0.36. The old sheet was 100% sure about every game, so every miss cost the maximum, and it scored worse than a coin flip. DuffCast gives odds instead, and they've held up: when it said 70% or better, it was right 52 of 62 times. That's what makes the playoff and title odds worth looking at.</p>
+    </div>
+  </section>
+  <section class="section">
+    <div class="sec-head"><div><div class="eyebrow">2025–26</div><h2>How Oliver.GPT worked</h2></div></div>
+    <div class="prose">
+      <p>Last season, every week, I copied each team's nine category totals from ESPN into a Google Sheet by hand. From there:</p>
+      <h3>1. Two averages per category</h3>
+      <p>I kept each team's season average and a weighted average where each older week counted 85% as much as the week after it, so recent weeks mattered more.</p>
+      <h3>2. Category ranks</h3>
+      <p>Every team got ranked 1 to 12 in each category, for each week and for the season. The average of those ranks worked as a rough power ranking.</p>
+      <h3>3. Picking each matchup</h3>
+      <p>For every remaining matchup, the sheet compared the two teams' averages category by category and marked a winner in each, with turnovers counted in reverse. Whoever won more categories got the win.</p>
+      <h3>4. Predicted standings</h3>
+      <p>Adding those picks up across the whole 19-week schedule, on top of actual results, gave everyone a predicted record. I also tracked how each team's predicted wins and place moved from the week before.</p>
+      <p>It was decent at picking favorites, but it had blind spots. A tiny edge in a category counted the same as a huge one. Short weeks made everyone look like they were slumping. And it couldn't say how likely anything was, like whether a team would actually make the playoffs.</p>
+    </div>
+  </section>
+  <section class="section">
+    <div class="sec-head"><div><div class="eyebrow">2026–27</div><h2>How DuffCast works</h2></div></div>
+    <div class="prose">
+      <h3>1. Strength is measured per game, against the league</h3>
+      <p>For counting stats, DuffCast divides each team's weekly total by the number of games its players actually played, using ESPN's daily lineups, then compares that with the league's per-game average for the week. FG% and FT% get compared directly. Older weeks fade at <b>80% per week</b>, a little faster than the old sheet's 85%, because that tested slightly better on last season.</p>
+      <h3>2. How many games you get is partly on you</h3>
+      <p>When I tested last season, it turned out that the number of games a team gets into its lineup is very consistent week to week. Some of us stream and fill every slot; some of us don't. So DuffCast tracks each team's usage rate: the share of its scheduled games it actually got into the lineup, compared with the rest of the league, weighted toward recent weeks. A short-handed week from injuries lowers it for a while, then it recovers.</p>
+      <h3>3. Each week is projected from the real schedule, injuries included</h3>
+      <p>A team's projected games for a week are its scheduled games times its usage rate. Scheduled games come from current rosters and the NBA schedule, counting at most 10 players a day. Anyone in the IR slot is left out. Injured players are left out only until ESPN's expected return date, so a guy who misses one game counts again the next day, while a torn Achilles counts as out for the season. If there's no return date, I assume two weeks. If you have someone hurt for a week or more and your IR spot is open, DuffCast assumes you'll stash him and pick someone up off waivers. That pickup counts as a player with an average schedule who produces about 75% of a typical rostered player.</p>
+      <h3>4. Small samples get pulled toward average</h3>
+      <p>One hot week mostly reflects luck and a few big games, so each team's numbers are blended with league average until there's more data. How much depends on the category. Steals and blocks swing a lot week to week, so a big week there counts for less than a big week in rebounds. FG% and FT% barely separate teams in any single week, so it takes about seven weeks before DuffCast trusts them.</p>
+      <h3>5. Wins are odds, then simulated</h3>
+      <p>For every matchup, DuffCast works out each team's chance to win, tie or lose each of the nine categories, and from that the chance of winning the week. Then it plays out the rest of the season <b>10,000 times</b>, playoffs included, using our four-team, two-week bracket. Each run also re-rolls how good every team really is, and lets every team's strength drift a little each simulated week, because rosters, injuries and slumps change things over a season. The amount of drift isn't a guess: it's what the 80% recency weight implies. So far-off weeks are much less certain than next week, and early-season playoff odds stay closer to the 1-in-3 base rate until the standings start to separate.</p>
+      <h3>6. Forecasts are frozen each week</h3>
+      <p>I run the simulations once a week when results come in and save them. Everyone sees the same odds, and past weeks keep exactly what DuffCast said at the time, even if I change the model later.</p>
+      <h3>What it doesn't know</h3>
+      <p>Team strength comes from results, not player projections. After a big trade, the schedule part updates right away, but the strength ratings take a week or two to catch up. Injury return dates are ESPN's estimates, and they move. The 75% waiver pickup is my guess, not something measured from our league, and I couldn't test the injury pieces on last season because ESPN doesn't keep old injury reports. The NBA Cup knockout weeks in December show fewer games until those matchups are set.</p>
+    </div>
+  </section>`;
+}
+
+// ---------- router ----------
+const VIEWS = { standings: viewStandings, matchups: viewMatchups, teams: viewTeams, tea: viewTea, model: viewModel };
+function render(){
+  const h = location.hash.slice(1);
+  state.view = VIEWS[h] ? h : 'standings';
+  if (state.a == null) defaultFocus();
+  renderMast();
+  VIEWS[state.view]($('#view'));
+}
+window.addEventListener('hashchange', render);
+new MutationObserver(() => document.querySelectorAll('.mascot-slot:not([data-ready])').forEach(fillMascot)).observe(document.getElementById('view'), { childList: true, subtree: true });
+if (state.s >= PREPS.length) state.s = 0;
+render();
+})();
+</script>
+
+</body>
+</html>
