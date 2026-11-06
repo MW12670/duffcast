@@ -668,14 +668,14 @@ function viewStandings(el){
   </section>
   <section class="section">
     <div class="sec-head">
-      <div><div class="eyebrow">Model over time</div><h2>Projected wins, every team</h2></div>
+      <div><div class="eyebrow">Model over time</div><h2>Projected wins</h2></div>
       <p>Where the model expected each team to finish after every week. Hover a line or name to pick it out; click one to keep it highlighted.</p>
     </div>
     <div class="panel chart-panel"><div class="chart tl" id="tlWins"></div></div>
   </section>
   <section class="section">
     <div class="sec-head">
-      <div><div class="eyebrow">Model over time</div><h2>Playoff odds, every team</h2></div>
+      <div><div class="eyebrow">Model over time</div><h2>Playoff odds</h2></div>
       <p>Each team's chance of finishing in the top ${nPO}, after every week.</p>
     </div>
     <div class="panel chart-panel"><div class="chart tl" id="tlPO"></div></div>
@@ -1104,54 +1104,19 @@ function viewTea(el){
 
 // ---------- model ----------
 function viewModel(el){
-  // Oliver.GPT (the 2025–26 spreadsheet) replayed on the same weeks: each week's picks use only earlier weeks,
-  // 85%-weighted raw averages, category-by-category, winner takes the matchup with 100% confidence.
-  const LEGACY = { n: 105, hit: 74, brier: 0.288 };
   const bt = PREPS.map(pp => ({ pp, r: backtest(pp) }));
   const last = bt.find(x => x.pp.season.id === '2026') || bt[bt.length - 1];
   const cur = bt.find(x => x.pp.season.id === '2027');
-  const D = last.r;
+  const D = last.r, C = cur && cur.r.n ? cur.r : null;
+  const cell = r => r ? `${r.hit} of ${r.n} <span class="muted">(${pct(r.hit / r.n)})</span>` : '<span class="muted">—</span>';
   el.innerHTML = `<section class="section">
-    <div class="sec-head"><div class="with-mascot"><span class="mascot-slot" data-mascot="stand"></span><div><div class="eyebrow">How it works</div><h2>Introducing DuffCast</h2></div></div></div>
+    <div class="sec-head"><div class="with-mascot"><span class="mascot-slot" data-mascot="stand"></span><div><div class="eyebrow">How it works</div><h2>How DuffCast works</h2></div></div></div>
     <div class="prose">
-      <p>DuffCast is the new and improved Oliver.GPT. Both start from the same idea: look at each team's category totals, lean on recent weeks, and see who should win more categories. This page explains how the old model worked, how it did, and how DuffCast works, and how it performs when backtested against last season.</p>
+      <p>DuffCast looks at each team's category totals every week, leans on recent weeks, and works out who should win more categories. Then it plays out the rest of the season thousands of times to get playoff and title odds.</p>
     </div>
-    <div class="panel tbl-wrap">
-      <table class="score">
-        <thead><tr><th>Last season, weeks 2–19</th><th>Oliver.GPT</th><th>DuffCast</th></tr></thead>
-        <tbody>
-          <tr><td>Matchups called correctly<span class="sub">Each week predicted using only earlier weeks</span></td><td class="num">${LEGACY.hit} of ${LEGACY.n} <span class="muted">(${pct(LEGACY.hit / LEGACY.n)})</span></td><td class="num">${D.hit} of ${D.n} <span class="muted">(${pct(D.hit / D.n)})</span></td></tr>
-          <tr><td>How sure it was<span class="sub">What each model said going into a matchup</span></td><td>Always 100%</td><td>A percentage for every matchup</td></tr>
-          <tr><td>When it was 70%+ sure<span class="sub">How often those confident calls came true</span></td><td class="muted">—</td><td class="num">${D.confHit} of ${D.conf} <span class="muted">(${pct(D.confHit / D.conf)})</span></td></tr>
-          <tr class="key"><td>Brier score<span class="sub">Lower is better. A coin flip scores 0.250.</span></td><td class="num bad">${LEGACY.brier.toFixed(3)}</td><td class="num good">${D.brier.toFixed(3)}</td></tr>
-          ${cur && cur.r.n ? `<tr><td>This season so far<span class="sub">DuffCast only</span></td><td class="muted">—</td><td class="num">${cur.r.hit} of ${cur.r.n} · Brier ${cur.r.brier.toFixed(3)}</td></tr>` : ''}
-        </tbody>
-      </table>
-    </div>
-    <div class="prose">
-      <p><b>What the scorecard shows.</b> I replayed all of last season from ESPN, predicting each week using only the weeks before it. DuffCast called 77 matchups to the old sheet's 74, which is close, and the sheet was decent at picking favorites. The bigger difference is the Brier score, which measures how far a stated chance was from what actually happened. Saying 100% and being wrong costs a full point, while saying 60% and being wrong costs 0.36. The old sheet was 100% sure about every game, so every miss cost the maximum, and it scored worse than a coin flip. DuffCast gives odds instead, and they've held up: when it said 70% or better, it was right 52 of 62 times. That's what makes the playoff and title odds worth looking at.</p>
-    </div>
-  </section>
-  <section class="section">
-    <div class="sec-head"><div><div class="eyebrow">2025–26</div><h2>How Oliver.GPT worked</h2></div></div>
-    <div class="prose">
-      <p>Last season, every week, I copied each team's nine category totals from ESPN into a Google Sheet by hand. From there:</p>
-      <h3>1. Two averages per category</h3>
-      <p>I kept each team's season average and a weighted average where each older week counted 85% as much as the week after it, so recent weeks mattered more.</p>
-      <h3>2. Category ranks</h3>
-      <p>Every team got ranked 1 to 12 in each category, for each week and for the season. The average of those ranks worked as a rough power ranking.</p>
-      <h3>3. Picking each matchup</h3>
-      <p>For every remaining matchup, the sheet compared the two teams' averages category by category and marked a winner in each, with turnovers counted in reverse. Whoever won more categories got the win.</p>
-      <h3>4. Predicted standings</h3>
-      <p>Adding those picks up across the whole 19-week schedule, on top of actual results, gave everyone a predicted record. I also tracked how each team's predicted wins and place moved from the week before.</p>
-      <p>It was decent at picking favorites, but it had blind spots. A tiny edge in a category counted the same as a huge one. Short weeks made everyone look like they were slumping. And it couldn't say how likely anything was, like whether a team would actually make the playoffs.</p>
-    </div>
-  </section>
-  <section class="section">
-    <div class="sec-head"><div><div class="eyebrow">2026–27</div><h2>How DuffCast works</h2></div></div>
     <div class="prose">
       <h3>1. Strength is measured per game, against the league</h3>
-      <p>For counting stats, DuffCast divides each team's weekly total by the number of games its players actually played, using ESPN's daily lineups, then compares that with the league's per-game average for the week. FG% and FT% get compared directly. Older weeks fade at <b>80% per week</b>, a little faster than the old sheet's 85%, because that tested slightly better on last season.</p>
+      <p>For counting stats, DuffCast divides each team's weekly total by the number of games its players actually played, using ESPN's daily lineups, then compares that with the league's per-game average for the week. FG% and FT% get compared directly. Older weeks fade at <b>80% per week</b>, which tested best on last season.</p>
       <h3>2. How many games you get is partly on you</h3>
       <p>When I tested last season, it turned out that the number of games a team gets into its lineup is very consistent week to week. Some of us stream and fill every slot; some of us don't. So DuffCast tracks each team's usage rate: the share of its scheduled games it actually got into the lineup, compared with the rest of the league, weighted toward recent weeks. A short-handed week from injuries lowers it for a while, then it recovers.</p>
       <h3>3. Each week is projected from the real schedule, injuries included</h3>
@@ -1164,6 +1129,22 @@ function viewModel(el){
       <p>I run the simulations once a week when results come in and save them. Everyone sees the same odds, and past weeks keep exactly what DuffCast said at the time, even if I change the model later.</p>
       <h3>What it doesn't know</h3>
       <p>Team strength comes from results, not player projections. After a big trade, the schedule part updates right away, but the strength ratings take a week or two to catch up. Injury return dates are ESPN's estimates, and they move. The 75% waiver pickup is my guess, not something measured from our league, and I couldn't test the injury pieces on last season because ESPN doesn't keep old injury reports. The NBA Cup knockout weeks in December show fewer games until those matchups are set.</p>
+    </div>
+  </section>
+  <section class="section">
+    <div class="sec-head"><div><div class="eyebrow">Backtest</div><h2>How it has done</h2></div></div>
+    <div class="panel tbl-wrap">
+      <table class="score">
+        <thead><tr><th></th><th>Last season, weeks 2–19</th><th>This season so far</th></tr></thead>
+        <tbody>
+          <tr><td>Matchups called correctly<span class="sub">Each week predicted using only earlier weeks</span></td><td class="num">${cell(D)}</td><td class="num">${cell(C)}</td></tr>
+          <tr><td>When it was 70%+ sure<span class="sub">How often those confident calls came true</span></td><td class="num">${D.conf ? `${D.confHit} of ${D.conf} <span class="muted">(${pct(D.confHit / D.conf)})</span>` : '—'}</td><td class="num">${C && C.conf ? `${C.confHit} of ${C.conf}` : '<span class="muted">—</span>'}</td></tr>
+          <tr class="key"><td>Brier score<span class="sub">Lower is better. A coin flip scores 0.250.</span></td><td class="num good">${D.brier.toFixed(3)}</td><td class="num">${C ? C.brier.toFixed(3) : '<span class="muted">—</span>'}</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="prose">
+      <p><b>What this shows.</b> I replayed all of last season from ESPN, predicting each week using only the weeks before it. DuffCast called ${D.hit} of ${D.n} matchups. The Brier score measures how far its stated chances were from what actually happened: saying 100% and being wrong costs a full point, while saying 60% and being wrong costs 0.36. When DuffCast said 70% or better last season, it was right ${D.confHit} of ${D.conf} times, so its odds can be taken at face value. This season's column is only a few weeks of games, so expect it to bounce around.</p>
     </div>
   </section>`;
 }
